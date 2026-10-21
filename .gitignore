@@ -1,0 +1,18 @@
+.venv/
+data/audio/
+logs/
+*.wav
+.DS_Store
+reference/private/
+reference/aside/memory/
+__pycache__/
+data/alfredo/
+
+# 2026-10-08: 비밀값·개인 자료는 Alfredo_private에 둔다
+.env
+.env.*
+!.env.example
+data/private/
+
+# 타사 화면 캡처·녹화(내부 참고용, 2026-10-08)
+reference/ui_refs*/

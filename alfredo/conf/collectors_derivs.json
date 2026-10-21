@@ -1,0 +1,30 @@
+{
+  "_comment": "알프레도(Alfredo) 전용 파생지표 수집 설정. Top3 팀 수집기(Cripto analysis/02_데이터수집, 10-03부터 OI·롱숏·테이커·펀딩 꺼짐)와는 코드·DB·로그·스케줄을 분리한다. 목적: 바이낸스 선물 공개 API의 30일 창 데이터를 끊김 없이 적립해, 나중에 실제 가격 방향·Top3 신호와의 조응을 검증한다(사용자 지시 2026-10-07 23시). API 키 불필요, 표준 라이브러리만 사용.",
+  "purpose": "alfredo",
+  "db_path": "data/alfredo/alfredo_derivs.db",
+  "log_path": "logs/alfredo_collector.log",
+  "symbols": ["BTCUSDT", "ETHUSDT", "XRPUSDT"],
+  "periods": ["15m", "1h", "4h"],
+  "window_days": 31,
+  "max_pages_per_series": 10,
+  "page_limit": 500,
+  "request_sleep_sec": 0.25,
+  "timeout_sec": 25,
+  "retries": 3,
+  "binance_window_endpoints": {
+    "_comment": "metric 이름은 Top3 conf/collectors.json 과 같게 둔다(나중에 두 DB를 같은 이름으로 대조). 전부 최근 약 30일치만 반환되므로 매 실행마다 창 전체를 받아 멱등 upsert 한다.",
+    "open_interest": {"path": "openInterestHist", "fields": {"oi_base": "sumOpenInterest", "oi_value_usd": "sumOpenInterestValue"}},
+    "global_long_short_account": {"path": "globalLongShortAccountRatio", "fields": {"global_acc_long_short_ratio": "longShortRatio", "global_acc_long_pct": "longAccount", "global_acc_short_pct": "shortAccount"}},
+    "top_long_short_position": {"path": "topLongShortPositionRatio", "fields": {"top_pos_long_short_ratio": "longShortRatio", "top_pos_long_pct": "longAccount", "top_pos_short_pct": "shortAccount"}},
+    "top_long_short_account": {"path": "topLongShortAccountRatio", "fields": {"top_acc_long_short_ratio": "longShortRatio", "top_acc_long_pct": "longAccount", "top_acc_short_pct": "shortAccount"}},
+    "taker_long_short": {"path": "takerlongshortRatio", "fields": {"buy_sell_ratio": "buySellRatio", "buy_vol": "buyVol", "sell_vol": "sellVol"}}
+  },
+  "funding": {
+    "_comment": "펀딩비(fapi/v1/fundingRate)는 전체 이력이 열려 있어 증분 수집. 처음엔 2019년부터 백필(심볼당 약 8천 행).",
+    "enabled": true,
+    "first_ms": 1500000000000,
+    "page_limit": 1000,
+    "metric": "funding_rate",
+    "period": "event"
+  }
+}
