@@ -62,6 +62,7 @@ Alfredo_my_wealth_manager/
 ├── images/                   # 01–08 그림
 ├── outputs/                  # summary.json(리포트 숫자), 월별 수익률·이상치·예측 오차 표
 ├── dashboard/                # 보너스 1: index.html(열기만 하면 됨), build_dashboard.py, screenshots/
+├── mate/alfredo/             # 알프레도 메이트 꾸러미(정체성·기술·권한·시험·기억)
 ├── alfredo/  mvp/  eval/  scripts/   # 알프레도 MVP(아래)
 └── docs/
 ```
@@ -86,6 +87,7 @@ Alfredo_my_wealth_manager/
 | `mvp/` | 대시보드 V3(코인·주식·기타 탭, **합성 가격 데모**)와 알프레도 채팅 로컬 서버(시험 24개) |
 | `eval/` | 알프레도 답변 평가 50문항과 채점 기준 |
 | `scripts/` | 채점기 등 |
+| `mate/alfredo/` | **메이트 꾸러미**: 알프레도를 다른 화면·서비스로 옮길 때 같이 가는 정체성·기술·권한·시험·기억 문서 |
 
 MVP 화면 실행(로컬): `python3 -I mvp/chat_server.py` → http://127.0.0.1:8787/ (이 컴퓨터 안에서만 열림). 채팅은 Codex CLI(ChatGPT 로그인)가 있어야 답하고, 없으면 `mvp/dist/alfredo_mvp_board.html`을 열어 화면만 볼 수 있습니다. 알프레도 채팅은 투자 권유로 읽힐 표현과 지시문 유출 시도를 걸러냅니다.
 
