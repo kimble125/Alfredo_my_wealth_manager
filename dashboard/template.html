@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, noai, noimageai">
+<title>Alfredo · 코인 분석 대시보드</title>
+<style>
+:root{--bg:#0e1015;--card:#171a22;--line:#262a35;--text:#e9eaee;--muted:#9aa0ad;--gold:#ffd166;--up:#2ecc71;--down:#ff5c5c;--blue:#4f9dff;--teal:#7fd8e0;--red:#ff6b6b;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 -apple-system,"Apple SD Gothic Neo","Pretendard","Malgun Gothic","Noto Sans KR",sans-serif}
+header{display:flex;align-items:center;gap:10px;padding:12px 18px;border-bottom:1px solid var(--line)}
+header h1{font-size:17px;margin:0}
+header .note{margin-left:auto;color:var(--muted);font-size:12px}
+.wrap{display:grid;grid-template-columns:minmax(0,3fr) minmax(260px,1fr);gap:14px;padding:14px 18px}
+@media (max-width:980px){.wrap{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px}
+.controls{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center}
+.ctl{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.ctl>span{color:var(--muted);font-size:12px;margin-right:2px}
+.seg button,.chip{background:#20242e;border:1px solid var(--line);color:var(--text);padding:5px 10px;border-radius:8px;cursor:pointer;font:inherit;font-size:13px}
+.seg button.on,.chip.on{background:var(--gold);color:#1a1a1a;border-color:var(--gold);font-weight:600}
+.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:12px}
+@media (max-width:980px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.kpi .lab{color:var(--muted);font-size:12px}
+.kpi .val{font-size:20px;font-weight:700;margin-top:2px}
+.kpi .sub{color:var(--muted);font-size:11.5px}
+.up{color:var(--up)}.down{color:var(--down)}
+.chart{margin-top:12px}
+.chart h3{font-size:13px;margin:0 0 6px;color:var(--muted);font-weight:600}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:980px){.row2{grid-template-columns:1fr}}
+svg text{fill:var(--muted);font-size:11px}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:4px}
+.legend i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:5px;vertical-align:middle}
+.tip{position:absolute;pointer-events:none;background:#0b0d12ee;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:12px;opacity:0;white-space:nowrap}
+.foot{color:var(--muted);font-size:12px;margin-top:12px}
+.foot a{color:var(--muted)}
+.mate{display:flex;flex-direction:column;gap:10px;position:sticky;top:10px;align-self:start;max-height:calc(100vh - 20px)}
+.mate-head{display:flex;gap:10px;align-items:center}
+.mate-head .name{font-weight:700;font-size:15px}
+.mate-head .role{color:var(--muted);font-size:12px}
+.level{margin-left:auto}
+.bubbles{display:flex;flex-direction:column;gap:8px;overflow:auto;padding-right:2px}
+.bub{background:#20242e;border:1px solid var(--line);border-radius:14px 14px 14px 4px;padding:9px 11px;font-size:13px}
+.bub b{color:var(--gold)}
+.bub .ref{display:block;color:var(--muted);font-size:11.5px;margin-top:4px}
+.ai-note{color:var(--muted);font-size:11.5px;border-top:1px dashed var(--line);padding-top:8px}
+.chat input{width:100%;background:#0f1218;border:1px solid var(--line);border-radius:10px;color:var(--muted);padding:9px 10px;font:inherit}
+.empty{color:var(--muted);padding:30px;text-align:center}
+</style>
+</head>
+<body>
+<header>
+  <svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="alf-logo-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2997ff"/><stop offset="1" stop-color="#5856d6"/></linearGradient></defs><rect width="32" height="32" rx="8" fill="url(#alf-logo-g)"/><path d="M8.8 25 16 7 23.2 25" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M10.4 14.9 15 17.6 15 18.4 10.4 21.1Z M21.6 14.9 17 17.6 17 18.4 21.6 21.1Z" fill="#ffd166" stroke="#ffd166" stroke-width=".9" stroke-linejoin="round"/><rect x="14.6" y="16.4" width="2.8" height="3.2" rx="1" fill="#ffb703"/></svg>
+  <h1>Alfredo · 코인 분석 대시보드</h1>
+  <span class="note">정보 제공·공부용이며 투자 권유가 아닙니다 · 자료 기준 <span id="asof"></span>(UTC)</span>
+</header>
+<div class="wrap">
+  <main>
+    <section class="card controls" aria-label="조건">
+      <div class="ctl"><span>코인</span><div class="seg" data-set="coin"><button data-v="BTC" class="on">BTC</button><button data-v="ETH">ETH</button><button data-v="XRP">XRP</button></div></div>
+      <div class="ctl"><span>기간</span><div class="seg" data-set="days"><button data-v="30">1개월</button><button data-v="91">3개월</button><button data-v="182">6개월</button><button data-v="365" class="on">1년</button><button data-v="1095">3년</button><button data-v="0">전체</button></div></div>
+      <div class="ctl"><span>장면</span><div class="seg" data-set="preset"><button data-v="bubble17">2017 거품</button><button data-v="bull21">2020–21 강세장</button><button data-v="bear22">2022 약세장</button><button data-v="halv24">4차 반감기 뒤</button></div></div>
+      <div class="ctl"><span>이동평균</span><button class="chip" data-ma="20">20일</button><button class="chip on" data-ma="50">50일</button><button class="chip on" data-ma="200">200일</button></div>
+      <div class="ctl"><span>변동성 창</span><div class="seg" data-set="volw"><button data-v="14">14일</button><button data-v="30" class="on">30일</button><button data-v="90">90일</button></div></div>
+      <div class="ctl"><button class="chip" id="logbtn">로그 축</button></div>
+    </section>
+    <section class="kpis" id="kpis"></section>
+    <section class="card chart"><h3 id="t-price">가격과 이동평균</h3><div id="c-price" style="position:relative"></div><div class="legend" id="lg-price"></div></section>
+    <div class="row2">
+      <section class="card chart"><h3 id="t-vol">변동성(연율, %)</h3><div id="c-vol" style="position:relative"></div></section>
+      <section class="card chart"><h3>공포탐욕 지수(0–100, 시장 전체)</h3><div id="c-fng" style="position:relative"></div></section>
+    </div>
+    <p class="foot">가격: Coinbase Exchange 일봉(UTC 자정) · Data: Fear &amp; Greed Index by <a href="https://alternative.me/crypto/fear-and-greed-index/">alternative.me</a> · 분석 리포트와 계산 방법: 저장소의 REPORT.md · 이 화면은 바깥 주소를 부르지 않습니다(데이터는 파일 안에 있음).</p>
+  </main>
+  <aside class="card mate" aria-label="알프레도">
+    <div class="mate-head">
+      <svg viewBox="0 0 32 32" width="40" height="40" aria-hidden="true"><rect width="32" height="32" rx="16" fill="url(#alf-logo-g)"/><path d="M8.8 25 16 7 23.2 25" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M10.4 14.9 15 17.6 15 18.4 10.4 21.1Z M21.6 14.9 17 17.6 17 18.4 21.6 21.1Z" fill="#ffd166"/><rect x="14.6" y="16.4" width="2.8" height="3.2" rx="1" fill="#ffb703"/></svg>
+      <div><div class="name">알프레도</div><div class="role">숫자를 풀어 드리는 투자 집사</div></div>
+      <div class="seg level" data-set="level"><button data-v="easy" class="on">쉽게</button><button data-v="deep">자세히</button></div>
+    </div>
+    <div class="bubbles" id="bubbles"></div>
+    <div class="ai-note">이 해설은 AI가 아니라 화면 숫자로 문장을 만드는 규칙이 씁니다(호출 없음, 결과가 늘 같음). 사고팔 시점·비중은 말씀드리지 않습니다.</div>
+    <div class="chat"><input disabled placeholder="알프레도에게 묻기: 로컬 서버를 켜면 열립니다"></div>
+  </aside>
+</div>
+<script>
+const DATA = /*__DATA__*/null;
+const DAY = 86400000;
+const NAMES = {BTC: "비트코인", ETH: "이더리움", XRP: "리플"};
+const COLORS = {BTC: "#f7931a", ETH: "#8c9eff", XRP: "#c9d1de"};
+const MA_COL = {20: "#7fd8e0", 50: "#4f9dff", 200: "#ff6b6b"};
+const FNG_KO = ["극단적 공포", "공포", "중립", "탐욕", "극단적 탐욕"];
+const PRESETS = {bubble17: ["2017-01-01", "2018-12-31", "2017 거품"], bull21: ["2020-03-13", "2021-11-30", "2020–21 강세장"],
+                 bear22: ["2022-01-01", "2022-12-31", "2022 약세장"], halv24: ["2024-04-20", null, "4차 반감기 뒤"]};
+const S = {coin: "BTC", days: 365, preset: null, ma: {20: false, 50: true, 200: true}, volw: 30, log: false, level: "easy"};
+const $ = (id) => document.getElementById(id);
+const t0 = (iso) => Date.parse(iso + "T00:00:00Z");
+const iso = (ms) => new Date(ms).toISOString().slice(0, 10);
+const fmtP = (x, d = 1) => (x == null || !isFinite(x)) ? "–" : (x >= 0 ? "+" : "") + x.toFixed(d) + "%";
+const fmtUSD = (x) => x == null ? "–" : "$" + (x >= 100 ? x.toLocaleString("en-US", {maximumFractionDigits: 0}) : x >= 1 ? x.toFixed(2) : x.toFixed(4));
+const cache = {};
+
+function series(coin) {
+  if (cache[coin]) return cache[coin];
+  const c = DATA.coins[coin], close = c.close, n = close.length, start = t0(c.start);
+  const ret = new Array(n).fill(null);
+  for (let i = 1; i < n; i++) if (close[i] != null && close[i - 1] != null) ret[i] = Math.log(close[i] / close[i - 1]);
+  const ma = {};
+  for (const w of [20, 50, 200]) {
+    const a = new Array(n).fill(null); let sum = 0, cnt = 0;
+    for (let i = 0; i < n; i++) {
+      if (close[i] != null) { sum += close[i]; cnt++; }
+      if (i >= w && close[i - w] != null) { sum -= close[i - w]; cnt--; }
+      if (i >= w - 1 && cnt === w) a[i] = sum / w;
+    }
+    ma[w] = a;
+  }
+  const vol = {};
+  for (const w of [14, 30, 90]) {
+    const a = new Array(n).fill(null);
+    for (let i = w; i < n; i++) {
+      let s = 0, s2 = 0, k = 0;
+      for (let j = i - w + 1; j <= i; j++) { if (ret[j] == null) { k = -1; break; } s += ret[j]; s2 += ret[j] * ret[j]; k++; }
+      if (k === w) { const m = s / w; a[i] = Math.sqrt(Math.max(0, (s2 - w * m * m) / (w - 1))) * Math.sqrt(365) * 100; }
+    }
+    vol[w] = a;
+  }
+  return (cache[coin] = {close, n, start, ret, ma, vol});
+}
+
+function range(sr) {
+  let a, b, label;
+  const lastValid = (() => { for (let i = sr.n - 1; i >= 0; i--) if (sr.close[i] != null) return i; return sr.n - 1; })();
+  if (S.preset) {
+    const p = PRESETS[S.preset];
+    a = Math.round((t0(p[0]) - sr.start) / DAY); b = p[1] ? Math.round((t0(p[1]) - sr.start) / DAY) : lastValid; label = p[2];
+  } else {
+    b = lastValid; a = S.days === 0 ? 0 : b - S.days + 1;
+    label = S.days === 0 ? "전체 기간" : ({30: "최근 1개월", 91: "최근 3개월", 182: "최근 6개월", 365: "최근 1년", 1095: "최근 3년"})[S.days];
+  }
+  a = Math.max(0, a); b = Math.min(lastValid, b);
+  while (a <= b && sr.close[a] == null) a++;
+  while (b >= a && sr.close[b] == null) b--;
+  return {a, b, label, ok: a < b};
+}
+
+function stats(sr, r) {
+  const c = sr.close; let peak = -Infinity, pi = r.a, mdd = 0, mp = r.a, mt = r.a, above = 0, tot = 0, nvalid = 0;
+  for (let i = r.a; i <= r.b; i++) {
+    if (c[i] == null) continue; nvalid++;
+    if (c[i] > peak) { peak = c[i]; pi = i; }
+    const dd = c[i] / peak - 1; if (dd < mdd) { mdd = dd; mp = pi; mt = i; }
+    if (sr.ma[200][i] != null) { tot++; if (c[i] > sr.ma[200][i]) above++; }
+  }
+  const v = sr.vol[S.volw][r.b];
+  const all = sr.vol[S.volw].filter((x) => x != null);
+  const pct = v == null ? null : all.filter((x) => x <= v).length / all.length * 100;
+  const fd = Math.round((sr.start + r.b * DAY - t0(DATA.fng.start)) / DAY);
+  const fv = (fd >= 0 && fd < DATA.fng.v.length) ? DATA.fng.v[fd] : null, fc = fv == null ? null : DATA.fng.c[fd];
+  return {ret: (c[r.b] / c[r.a] - 1) * 100, mdd: mdd * 100, mdPeak: iso(sr.start + mp * DAY), mdTrough: iso(sr.start + mt * DAY),
+          shareAbove: tot ? above / tot * 100 : null, ma200: sr.ma[200][r.b], vol: v, volPct: pct, fv, fc, nvalid,
+          c0: c[r.a], c1: c[r.b], d0: iso(sr.start + r.a * DAY), d1: iso(sr.start + r.b * DAY)};
+}
+
+function kpis(st) {
+  const cls = (x) => x == null ? "" : x >= 0 ? "up" : "down";
+  const regime = st.ma200 == null ? "계산 불가" : st.c1 > st.ma200 ? "200일선 위" : "200일선 아래";
+  const items = [
+    ["기간 수익률", `<span class="${cls(st.ret)}">${fmtP(st.ret)}</span>`, `${st.d0} → ${st.d1} · ${st.nvalid}일`],
+    ["최대 낙폭", `<span class="down">${fmtP(st.mdd)}</span>`, `${st.mdPeak} 고점 → ${st.mdTrough}`],
+    [`${S.volw}일 변동성(연율)`, st.vol == null ? "–" : st.vol.toFixed(1) + "%", st.volPct == null ? "" : `전체 기록 중 하위 ${st.volPct.toFixed(0)}%`],
+    ["추세 국면(기간 끝)", regime, st.ma200 == null ? "" : `200일선 ${fmtUSD(st.ma200)} · 기간 중 위 ${st.shareAbove == null ? "–" : st.shareAbove.toFixed(0) + "%"}의 날`],
+    ["공포탐욕(기간 끝)", st.fv == null ? "–" : `${st.fv} · ${FNG_KO[st.fc]}`, "시장 심리 0–100 · alternative.me"],
+  ];
+  $("kpis").innerHTML = items.map(([l, v, s]) => `<div class="card kpi"><div class="lab">${l}</div><div class="val">${v}</div><div class="sub">${s}</div></div>`).join("");
+}
+
+function lineChart(el, opts) {
+  const W = el.clientWidth || 800, H = opts.h, P = {l: 58, r: 10, t: 8, b: 22};
+  const xs = (i) => P.l + (i - opts.a) / Math.max(1, opts.b - opts.a) * (W - P.l - P.r);
+  let lo = Infinity, hi = -Infinity;
+  for (const s of opts.series) for (let i = opts.a; i <= opts.b; i++) { const v = s.y[i]; if (v != null) { lo = Math.min(lo, v); hi = Math.max(hi, v); } }
+  if (opts.fixed) { lo = opts.fixed[0]; hi = opts.fixed[1]; }
+  if (!isFinite(lo)) { el.innerHTML = '<div class="empty">이 조건에서는 그릴 자료가 없어요</div>'; return; }
+  const lg = opts.log && lo > 0;
+  const f = (v) => lg ? Math.log(v) : v;
+  let L = f(lo), Hh = f(hi); const pad = (Hh - L) * 0.06 || 1; if (!opts.fixed) { L -= pad; Hh += pad; if (!lg && lo >= 0 && L < 0) L = 0; }
+  const ys = (v) => P.t + (1 - (f(v) - L) / (Hh - L)) * (H - P.t - P.b);
+  let g = "";
+  for (const band of (opts.bands || [])) g += `<rect x="${P.l}" width="${W - P.l - P.r}" y="${ys(band[1])}" height="${ys(band[0]) - ys(band[1])}" fill="${band[2]}"/>`;
+  for (let k = 0; k <= 4; k++) {
+    const v = lg ? Math.exp(L + (Hh - L) * k / 4) : L + (Hh - L) * k / 4, y = ys(v);
+    g += `<line x1="${P.l}" x2="${W - P.r}" y1="${y}" y2="${y}" stroke="#262a35"/><text x="${P.l - 6}" y="${y + 4}" text-anchor="end">${opts.yfmt(v)}</text>`;
+  }
+  const span = opts.b - opts.a, nt = 5;
+  for (let k = 0; k <= nt; k++) {
+    const i = Math.round(opts.a + span * k / nt), d = iso(opts.start + i * DAY);
+    g += `<text x="${xs(i)}" y="${H - 6}" text-anchor="${k === 0 ? "start" : k === nt ? "end" : "middle"}">${span > 400 ? d.slice(0, 7) : d.slice(2)}</text>`;
+  }
+  for (const s of opts.series) {
+    let d = "", pen = false;
+    for (let i = opts.a; i <= opts.b; i++) { const v = s.y[i]; if (v == null) { pen = false; continue; } d += (pen ? "L" : "M") + xs(i).toFixed(1) + " " + ys(v).toFixed(1); pen = true; }
+    g += `<path d="${d}" fill="none" stroke="${s.c}" stroke-width="${s.w || 1.4}"/>`;
+  }
+  g += `<line id="hl" y1="${P.t}" y2="${H - P.b}" stroke="#9aa0ad" stroke-dasharray="3 3" opacity="0"/><rect id="hit" x="${P.l}" y="0" width="${W - P.l - P.r}" height="${H}" fill="transparent"/>`;
+  el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}">${g}</svg><div class="tip"></div>`;
+  const svg = el.querySelector("svg"), tip = el.querySelector(".tip"), hl = svg.querySelector("#hl");
+  svg.querySelector("#hit").addEventListener("pointermove", (e) => {
+    const rect = svg.getBoundingClientRect(), x = (e.clientX - rect.left) * W / rect.width;
+    const i = Math.max(opts.a, Math.min(opts.b, Math.round(opts.a + (x - P.l) / (W - P.l - P.r) * (opts.b - opts.a))));
+    hl.setAttribute("x1", xs(i)); hl.setAttribute("x2", xs(i)); hl.setAttribute("opacity", 1);
+    tip.innerHTML = `<b>${iso(opts.start + i * DAY)}</b><br>` + opts.series.map((s) => `${s.n}: ${s.y[i] == null ? "–" : opts.yfmt(s.y[i])}`).join("<br>");
+    tip.style.opacity = 1; tip.style.left = Math.min(rect.width - 150, (xs(i) * rect.width / W) + 10) + "px"; tip.style.top = "10px";
+  });
+  svg.querySelector("#hit").addEventListener("pointerleave", () => { tip.style.opacity = 0; hl.setAttribute("opacity", 0); });
+}
+
+function bubbles(st, sr, r) {
+  const coin = S.coin, nm = NAMES[coin], R = DATA.ref, out = [];
+  const easy = S.level === "easy";
+  out.push(`<b>${nm} · ${r.label}</b><br>${st.d0} ${fmtUSD(st.c0)} → ${st.d1} ${fmtUSD(st.c1)}, 수익률은 <b>${fmtP(st.ret)}</b>입니다. 이 기간 가장 크게 떨어진 폭은 <b>${fmtP(st.mdd)}</b>(${st.mdPeak} → ${st.mdTrough})였어요.` +
+           (easy ? `<span class="ref">최대 낙폭: 앞선 최고가에서 가장 많이 내려간 비율이에요. 버티기 힘들었던 정도를 보여 줘요.</span>` : ""));
+  if (st.ma200 != null) {
+    const pos = st.c1 > st.ma200 ? "위" : "아래";
+    let t = `${st.d1} 종가는 200일 이동평균 <b>${pos}</b>에 있어요(종가 ${fmtUSD(st.c1)}, 200일선 ${fmtUSD(st.ma200)}). 이 기간에는 ${st.shareAbove.toFixed(0)}%의 날이 200일선 위였습니다.`;
+    if (easy) t += `<span class="ref">200일 이동평균: 최근 200일 종가의 평균이에요. 그 위에 있으면 긴 흐름이 오르는 쪽이라고 읽어요.</span>`;
+    else t += `<span class="ref">참고(BTC, 2016–2026): 200일선 위였던 날의 30일 뒤 수익률 중앙값 ${fmtP(R.fwd30_above_ma200.median_pct, 2)}(${R.fwd30_above_ma200.n.toLocaleString()}일), 아래였던 날 ${fmtP(R.fwd30_below_ma200.median_pct, 2)}(${R.fwd30_below_ma200.n.toLocaleString()}일). 국면을 설명하는 숫자이지 매수 신호가 아니에요.</span>`;
+    out.push(t);
+  } else out.push(`이 기간 끝에는 200일 이동평균을 계산할 자료가 모자라요(빈 날이 섞이면 계산하지 않아요).`);
+  if (st.vol != null) {
+    let t = `${S.volw}일 변동성은 <b>${st.vol.toFixed(1)}%</b>(연율)로, 이 코인의 전체 기록 중 하위 <b>${st.volPct.toFixed(0)}%</b> 수준이에요.`;
+    if (easy) t += `<span class="ref">변동성: 하루하루 값이 얼마나 출렁였는지를 1년 기준으로 바꾼 값이에요. 낮을수록 잔잔했다는 뜻이에요.</span>`;
+    else t += `<span class="ref">BTC 연평균 30일 변동성은 2017년 84%에서 2025년 41%로 내려왔어요(REPORT 그림 2).</span>`;
+    out.push(t);
+  }
+  if (st.fv != null) {
+    const k = FNG_KO[st.fc], ref = R.fng_forward[k];
+    let t = `${st.d1} 공포탐욕 지수는 <b>${st.fv}(${k})</b>입니다.`;
+    if (easy) t += `<span class="ref">공포탐욕 지수: 변동성·거래량·SNS 등으로 만든 시장 심리 점수(0–100)예요. alternative.me가 매일 발표해요.</span>`;
+    else if (ref) t += `<span class="ref">이 자료에서 '${k}'였던 날 산 경우 30일 뒤 수익률 중앙값은 ${fmtP(ref.median_pct, 2)}, 오른 비율 ${ref.pos_share_pct}%였어요(독립 구간 ${ref.n_episodes}개라 단정하기 어려워요).</span>`;
+    out.push(t);
+  } else out.push(`이 날짜에는 공포탐욕 지수 자료가 없어요(2018-02-01부터 있어요).`);
+  if (!easy) {
+    const rf = R.rolling_forecast, best = Object.keys(rf).reduce((x, y) => rf[x].mean_MAPE_pct <= rf[y].mean_MAPE_pct ? x : y);
+    out.push(`앞날 숫자는 드리지 않아요. 지난 24개월을 30일씩 재 보니 가장 단순한 '${best}'의 평균 오차가 ${rf[best].mean_MAPE_pct}%로 제일 작았어요. 단순한 기준선을 이기기도 어렵다는 뜻이라, 저는 예측 대신 지금 국면을 설명해 드립니다.<span class="ref">REPORT 7절 B</span>`);
+  }
+  out.push(`저는 숫자를 풀어 드릴 뿐, 사고팔 시점이나 비중은 정해 드리지 않아요. 결정은 늘 사용자께서 하십니다.`);
+  $("bubbles").innerHTML = out.map((x) => `<div class="bub">${x}</div>`).join("");
+}
+
+function render() {
+  const sr = series(S.coin), r = range(sr);
+  document.querySelectorAll('[data-set="coin"] button').forEach((b) => b.classList.toggle("on", b.dataset.v === S.coin));
+  if (!r.ok) {
+    $("kpis").innerHTML = ""; ["c-price", "c-vol", "c-fng"].forEach((id) => $(id).innerHTML = `<div class="empty">${NAMES[S.coin]}은(는) '${r.label}' 기간 자료가 없어요(코인베이스 자료 시작 ${DATA.coins[S.coin].start}).</div>`);
+    $("bubbles").innerHTML = `<div class="bub">${NAMES[S.coin]}은(는) 이 기간 자료가 없어요. 다른 기간이나 코인을 골라 주세요.</div>`; return;
+  }
+  const st = stats(sr, r);
+  kpis(st);
+  $("t-price").textContent = `${NAMES[S.coin]}(${S.coin}-USD) 가격과 이동평균 · ${r.label}${S.log ? " · 로그 축" : ""}`;
+  const ser = [{n: "종가", y: sr.close, c: COLORS[S.coin], w: 1.6}];
+  for (const w of [20, 50, 200]) if (S.ma[w]) ser.push({n: `${w}일선`, y: sr.ma[w], c: MA_COL[w], w: 1.3});
+  lineChart($("c-price"), {a: r.a, b: r.b, start: sr.start, h: 300, series: ser, log: S.log, yfmt: fmtUSD});
+  $("lg-price").innerHTML = ser.map((s) => `<span><i style="background:${s.c}"></i>${s.n}</span>`).join("");
+  $("t-vol").textContent = `${S.volw}일 변동성(연율, %)`;
+  lineChart($("c-vol"), {a: r.a, b: r.b, start: sr.start, h: 170, series: [{n: "변동성", y: sr.vol[S.volw], c: "#ff9f43"}], yfmt: (v) => v.toFixed(0) + "%"});
+  const off = Math.round((t0(DATA.fng.start) - sr.start) / DAY), fy = new Array(sr.n).fill(null);
+  for (let i = 0; i < sr.n; i++) { const j = i - off; if (j >= 0 && j < DATA.fng.v.length) fy[i] = DATA.fng.v[j]; }
+  lineChart($("c-fng"), {a: r.a, b: r.b, start: sr.start, h: 170, fixed: [0, 100], series: [{n: "공포탐욕", y: fy, c: "#d6d9e0"}],
+    bands: [[0, 25, "#ff5c5c22"], [75, 100, "#2ecc7122"]], yfmt: (v) => v.toFixed(0)});
+  bubbles(st, sr, r);
+}
+
+document.querySelectorAll("[data-set]").forEach((grp) => grp.addEventListener("click", (e) => {
+  const b = e.target.closest("button"); if (!b) return; const k = grp.dataset.set, v = b.dataset.v;
+  if (k === "coin") S.coin = v;
+  else if (k === "days") { S.days = +v; S.preset = null; }
+  else if (k === "preset") { S.preset = v; }
+  else if (k === "volw") S.volw = +v;
+  else if (k === "level") S.level = v;
+  if (k !== "coin") grp.querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === b));
+  if (k === "preset") document.querySelectorAll('[data-set="days"] button').forEach((x) => x.classList.remove("on"));
+  if (k === "days") document.querySelectorAll('[data-set="preset"] button').forEach((x) => x.classList.remove("on"));
+  render();
+}));
+document.querySelectorAll("[data-ma]").forEach((b) => b.addEventListener("click", () => { const w = +b.dataset.ma; S.ma[w] = !S.ma[w]; b.classList.toggle("on", S.ma[w]); render(); }));
+$("logbtn").addEventListener("click", () => { S.log = !S.log; $("logbtn").classList.toggle("on", S.log); render(); });
+window.addEventListener("resize", () => { clearTimeout(window.__rz); window.__rz = setTimeout(render, 150); });
+(() => { const c = DATA.coins.BTC; $("asof").textContent = iso(t0(c.start) + (c.close.length - 1) * DAY); })();
+// 주소의 #코인/기간 으로 바로 열기(스크린샷 시나리오용): 예) index.html#ETH/1095 , #BTC/bear22
+(() => {
+  const h = decodeURIComponent(location.hash.slice(1)); if (!h) return;
+  const [coin, p] = h.split("/"); if (DATA.coins[coin]) S.coin = coin;
+  if (p) { if (PRESETS[p]) { S.preset = p; } else if (!isNaN(+p)) { S.days = +p; S.preset = null; } }
+  document.querySelectorAll('[data-set="days"] button').forEach((x) => x.classList.toggle("on", !S.preset && +x.dataset.v === S.days));
+  document.querySelectorAll('[data-set="preset"] button').forEach((x) => x.classList.toggle("on", x.dataset.v === S.preset));
+})();
+render();
+</script>
+</body>
+</html>

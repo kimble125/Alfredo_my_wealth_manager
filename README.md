@@ -11,7 +11,8 @@
 1. **[REPORT.md](REPORT.md) 0절 '한눈에'**: 결론 5줄(1분)
 2. **그림 8장**: [images/](images/) 또는 REPORT 5·7절. 그림마다 '관찰(사실)'과 '해석(가설)'을 나눠 적었습니다(2분)
 3. **아래 '미션 요구 충족표'**: 요구마다 어디서 충족했는지 링크(1분)
-4. **(선택) 실행**: `pip install -r requirements.txt && python analysis.py` (1분)
+4. **보너스 대시보드**: [dashboard/README.md](dashboard/README.md)의 스크린샷 5장과 시나리오(1분). 직접 보려면 `dashboard/index.html`을 내려받아 브라우저로 열기
+5. **(선택) 실행**: `pip install -r requirements.txt && python analysis.py` (1분)
 
 ## 미션 요구 충족표
 
@@ -31,7 +32,7 @@
 | 재현성(의존성·실행 방법·출처/약관) | [requirements.txt](requirements.txt), 아래 '실행', '데이터 출처와 약관' | 충족 |
 | 분석 품질(그래프만 나열 금지) | 그림마다 관찰·해석 문단 · [REPORT 5절](REPORT.md#5-분석-결과와-시각화) | 충족 |
 | **AI 사용 로그**(작업·이유·검증 방법) | 7개 작업, 검증 방법 포함 · [REPORT 9절](REPORT.md#9-ai-사용-로그) | 충족 |
-| 보너스 1: 대시보드(기간·조건 바꿔 탐색) | [dashboard/](dashboard/) | 작업 중 |
+| 보너스 1: 대시보드(기간·조건 바꿔 탐색) | 코인·기간·장면·이동평균·변동성 창·로그 축을 바꾸면 숫자 카드·그래프·알프레도 해설이 바뀌는 파일 하나짜리 화면 [dashboard/index.html](dashboard/index.html). 제출 형식 (3) 스크린샷 5장 + 시나리오 · [dashboard/README.md](dashboard/README.md) | 충족 |
 | 보너스 2: 분해·예측 + 시각화 | 고전 분해(그림 6), 베이스라인 예측 4종 + 24구간 재검증(그림 7) · [REPORT 7절](REPORT.md#7-보너스-시계열-분해와-베이스라인-예측) | 충족 |
 
 ## 실행
@@ -41,6 +42,8 @@ python -m venv .venv && source .venv/bin/activate     # Python 3.10 이상
 pip install -r requirements.txt
 python data/collect.py --end 2026-10-21    # (선택) 공개 API에서 데이터 다시 받기, 약 30초, 키 필요 없음
 python analysis.py                         # images/*.png 8장, outputs/summary.json 생성
+python dashboard/build_dashboard.py        # dashboard/index.html 다시 만들기
+python -m unittest discover -s tests       # 시험(데이터·리포트·대시보드)
 ```
 
 - 검증 환경: macOS, Python 3.14, pandas 3.0.3, numpy 2.4.6, matplotlib 3.11.1
@@ -58,7 +61,7 @@ Alfredo_my_wealth_manager/
 │   └── raw/                  # coinbase_{btc,eth,xrp}_usd_1d.csv, fear_greed_1d.csv
 ├── images/                   # 01–08 그림
 ├── outputs/                  # summary.json(리포트 숫자), 월별 수익률·이상치·예측 오차 표
-├── dashboard/                # 보너스 1 대시보드(작업 중)
+├── dashboard/                # 보너스 1: index.html(열기만 하면 됨), build_dashboard.py, screenshots/
 ├── alfredo/  mvp/  eval/  scripts/   # 알프레도 MVP(아래)
 └── docs/
 ```
@@ -93,3 +96,5 @@ MVP 화면 실행(로컬): `python3 -I mvp/chat_server.py` → http://127.0.0.1:
 ## 저작권
 
 © 2026 김호연(개발자 miru). 코드와 문서는 열람·학습·평가 목적으로 공개합니다. 다시 쓰려면 Issues로 문의해 주세요. 글꼴 Pretendard(SIL OFL 1.1) 사본은 `mvp/fonts/`에 있습니다.
+
+발표·질의 대비 설명문(작성자용): [docs/presenter-guide_ko.md](docs/presenter-guide_ko.md)
