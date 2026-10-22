@@ -26,6 +26,9 @@ import build_demo as B  # noqa: E402,F401  (불러오는 순간 개인 경로 �
 
 BOARD_HTML = os.path.join(MVP, "dist", "alfredo_mvp_board.html")
 BOARD_JSON = os.path.join(MVP, "data", "board.json")
+TOP3_DIR = os.path.realpath(os.path.join(MVP, "top3_home"))
+TYPES = {".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8",
+         ".png": "image/png", ".jpg": "image/jpeg", ".svg": "image/svg+xml"}
 MODEL = os.environ.get("ALFREDO_CHAT_MODEL", "gpt-6.1-sol")    # CLAUDE.md 기본값. 바꾸려면 환경 변수
 EFFORT = os.environ.get("ALFREDO_CHAT_EFFORT", "low")          # 채팅은 빨라야 해서 low
 TIMEOUT = 120
@@ -40,9 +43,9 @@ SAFE = ("그 질문에는 사고팔 시점이나 비중을 정해 드리는 답�
 RULES = """너는 '알프레도', 모의투자 정보 서비스의 AI 집사다. 한국어로, 중학생도 알아듣게, 3–6문장으로 답한다.
 지킬 것:
 - 투자 권유를 하지 않는다. 사라·팔라·지금 들어가라·비중을 얼마로 하라 같은 말을 하지 않는다. 최종 결정은 사용자가 한다.
-- 숫자는 아래 '화면 자료'에 있는 것만 쓴다. 없는 숫자를 만들지 않는다. 화면의 가격은 합성값(실제 시세 아님)이다.
+- 숫자는 아래 '화면 자료'에 있는 것만 쓴다. 없는 숫자를 만들지 않는다. 주식·기타 탭의 가격은 합성값(실제 시세 아님)이고, 코인 탭은 화면 자료의 '안내'를 따른다.
 - 확신도는 신호가 같은 방향을 가리키는 정도이고 확률·추천이 아니다. 계산은 코드가 했고 너는 설명만 한다. 판정을 바꾸지 않는다.
-- 정성 신호(뉴스·시황 해석)는 지금 손으로 넣은 예시값이다. 실제 뉴스나 지금 시세는 모른다고 말한다.
+- 주식·기타 탭의 정성 신호(뉴스·시황 해석)는 손으로 넣은 예시값이다. 화면 자료에 없는 뉴스나 시세는 모른다고 말한다.
 - 개인 정보·계좌·금액을 묻지 않는다. 사용자가 적으면 다루지 않고 적지 말라고 안내한다.
 - 마크다운 표·제목 없이 짧은 문단으로 쓴다."""
 
@@ -60,9 +63,19 @@ def facts(board: dict, tab: str, asset: str) -> dict:
     }
 
 
-def build_prompt(board: dict, tab: str, asset: str, message: str, history: list[dict]) -> str:
+LIVE_NOTE = ("코인 탭 자료는 Top 3 Crypto 실시간 화면(바이낸스 현물, 15분마다 갱신)에서 읽은 글이다. 합성값이 아니다. "
+             "'4지표 일치 신호'는 MACD 4시간·Stochastic 1시간·StochRSI 1시간·VPCI 15분의 방향(본선−신호선 부호)이 모두 같아진 첫 15분봉이며, "
+             "대시보드의 간이 규칙이라 Top3 공식 판정과 다를 수 있다.")
+
+
+def live_facts(live: dict, asset: str) -> dict:
+    raw = json.dumps(live, ensure_ascii=False)[:6000]   # 화면 글만, 길이 제한
+    return {"탭": "코인(Top 3 Crypto 실시간)", "고른 코인": asset, "안내": LIVE_NOTE, "화면 자료": raw}
+
+
+def build_prompt(board: dict, tab: str, asset: str, message: str, history: list[dict], live: dict | None = None) -> str:
     hist = "\n".join(f"{'사용자' if h.get('role') == 'user' else '알프레도'}: {str(h.get('text', ''))[:800]}" for h in history[-MAX_HIST:])
-    return (RULES + "\n\n화면 자료(JSON):\n" + json.dumps(facts(board, tab, asset), ensure_ascii=False)
+    return (RULES + "\n\n화면 자료(JSON):\n" + json.dumps(live_facts(live, asset) if live is not None else facts(board, tab, asset), ensure_ascii=False)
             + ("\n\n지난 대화:\n" + hist if hist else "") + "\n\n사용자 질문: " + message + "\n\n알프레도의 답:")
 
 
@@ -119,6 +132,12 @@ class Handler(BaseHTTPRequestHandler):
         if self.path.split("?")[0] in ("/", "/index.html"):
             with open(BOARD_HTML, "rb") as f:
                 return self._send(200, f.read(), "text/html; charset=utf-8")
+        if self.path.startswith("/top3/"):  # 코인 탭: Top3 홈 사본(정적 파일만. 데이터는 브라우저가 Top3 배포본 API에서 받음)
+            rel = self.path.split("?")[0][len("/top3/"):] or "index.html"
+            p = os.path.realpath(os.path.join(TOP3_DIR, rel))
+            if p.startswith(TOP3_DIR + os.sep) and os.path.isfile(p):
+                with open(p, "rb") as f:
+                    return self._send(200, f.read(), TYPES.get(os.path.splitext(p)[1], "application/octet-stream"))
         return self._json(404, {"error": "없음"})
 
     def do_POST(self):
@@ -140,7 +159,8 @@ class Handler(BaseHTTPRequestHandler):
             if not msg:
                 return self._json(400, {"error": "질문이 비었습니다"})
             hist = req.get("history") if isinstance(req.get("history"), list) else []
-            answer, flagged = check(call_gpt(build_prompt(board, tab, asset, msg, hist)))
+            live = req.get("live") if tab == "coin" and isinstance(req.get("live"), dict) else None
+            answer, flagged = check(call_gpt(build_prompt(board, tab, asset, msg, hist, live)))
             return self._json(200, {"answer": answer, "flagged": flagged, "model": MODEL})
         except subprocess.TimeoutExpired:
             return self._json(504, {"error": f"GPT 응답이 {TIMEOUT}초 안에 오지 않았습니다"})

@@ -220,8 +220,11 @@ class Board(unittest.TestCase):
 
     def test_no_request_code_and_links(self):
         for pat in (r"""(?:src|href)\s*=\s*["']https?://""", r"@import", r"url\(\s*['\"]?https?://",
-                    r"XMLHttpRequest", r"sendBeacon", r"new WebSocket", r"<link\b", r"<iframe\b", r"<img\b"):
-            self.assertIsNone(re.search(pat, self.html), pat)  # 로고도 그림 파일이 아니라 직접 그린 SVG(Top3 로고 뺌, 10-19)
+                    r"XMLHttpRequest", r"sendBeacon", r"new WebSocket", r"<link\b", r"<img\b"):
+            self.assertIsNone(re.search(pat, self.html), pat)
+        # 10-22 호연 지시: 코인 탭은 같은 로컬 서버의 Top3 홈 사본(/top3/) 하나만 iframe으로 넣는다
+        self.assertEqual(re.findall(r"<iframe\b[^>]*data-src=\"([^\"]+)\"", self.html), ["/top3/index.html?embed=1&days=7"])
+        self.assertEqual(len(re.findall(r"<iframe\b", self.html)), 1)  # 로고도 그림 파일이 아니라 직접 그린 SVG(Top3 로고 뺌, 10-19)
         self.assertIn('id="alf-logo-g"', self.html)
         # 요청 코드는 채팅 한 곳뿐: 같은 로컬 서버의 상대 주소, 파일로 연 화면에서는 부르지 않음
         self.assertEqual(re.findall(r"\bfetch\(([^,)]*)", self.html), ['"api/chat"'])
@@ -230,9 +233,10 @@ class Board(unittest.TestCase):
         self.assertTrue(found <= {B.TOP3_URL, "http://127.0.0.1:8787"}, found)  # 로컬 서버 주소는 안내 문장 속 글자
 
     def test_band_and_no_personal(self):
-        band = re.search(r'<div class="band" id="band"[^>]*>(.*?)</div>', self.html).group(1)
-        for w in ("AI", "투자 권유가 아닙니다", "모의투자"):
-            self.assertIn(w, band)
+        # 10-22 호연 지시: 맨 위 띠는 빼고 주의 문구는 Top3처럼 바닥글에 최소한으로
+        self.assertNotIn('id="band"', self.html)
+        self.assertIn("정보 제공용이며 투자 권유가 아닙니다", self.html)
+        self.assertIn("가격은 합성값입니다(실제 시세 아님)", self.html)
         low = re.sub(r"data:[\w/+.-]+;base64,[A-Za-z0-9+/=]+", "data:", self.html).lower()
         self.assertEqual([m for m in ("alfredo_private", "data/alfredo/personal", "alfredo_link", "banksalad", "upbit", "/users/") if m in low], [])
         self.assertNotIn("안전 자산", re.sub(r"'안전 자산'이라는 말은[^<]*", "", self.html))

@@ -167,6 +167,11 @@ p.fine{margin-top:10px}
 @media(max-width:600px){.study-doc dl{grid-template-columns:minmax(0,1fr)}}
 .set-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid var(--divider);font-size:15px;flex-wrap:wrap}
 .set-row:first-of-type{border-top:0}
+.coin-wrap{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px;align-items:start}
+.coin-chat{position:sticky;top:96px;margin-top:16px}
+.coin-chat .chat{border-left:0;padding-left:0}
+@media(max-width:1000px){.coin-wrap{grid-template-columns:minmax(0,1fr)}.coin-chat{position:static}}
+.top3-frame{display:block;width:100%;min-height:900px;border:0;background:transparent}
 .foot{margin-top:28px;font-size:12px;color:var(--ink-48);line-height:1.6}
 .alert{padding:12px 16px;border-radius:var(--r-md);border:1px solid var(--warn);color:var(--warn)}
 @media(max-width:700px){
@@ -193,7 +198,6 @@ p.fine{margin-top:10px}
       <span class="ref-line" id="ref-line"></span>
     </div>
   </header>
-  <div class="band" id="band" role="note">AI가 만든 정보이며 투자 권유가 아닙니다. 모의투자 기준입니다.</div>
 </div>
 
 <main class="wrap" id="app">
@@ -216,7 +220,7 @@ p.fine{margin-top:10px}
       <p class="fine">단위가 다른 지표는 각자 눈금입니다. 선이 만나는 높이보다 방향과 교차 시점을 보세요.</p>
       </div>
       <aside class="chat" id="chat" aria-label="알프레도와 대화">
-        <div class="chat-h"><h3>알프레도에게 묻기</h3><span class="fine">AI 에이전트 · GPT</span></div>
+        <div class="chat-h"><h3>알프레도에게 묻기</h3></div>
         <p class="fine" id="chat-note" style="margin-top:0"></p>
         <div class="chat-log" id="chat-log" role="log" aria-live="polite"></div>
         <div class="chat-sug" id="chat-sug"></div>
@@ -241,6 +245,14 @@ p.fine{margin-top:10px}
     </div>
   </section>
 
+  <!-- 코인(2026-10-22 호연 지시): Top3 Crypto 홈(실시간)을 그대로 넣는다. 알프레도에게 묻기는 빼고, 지표 그래프에 일봉 종가 점을 더함(mvp/top3_home) -->
+  <section id="view-top3" hidden>
+    <div class="coin-wrap">
+      <iframe id="top3-frame" class="top3-frame" title="코인 · Top 3 Crypto 홈" src="about:blank" data-src="/top3/index.html?embed=1&days=7"></iframe>
+      <div class="tile coin-chat" id="coin-chat-slot"></div>
+    </div>
+  </section>
+
   <!-- AI 분석: Top3 자리 그대로(이번 MVP에서는 손대지 않음) -->
   <section id="view-ai" hidden>
     <article class="tile mt study-doc">
@@ -262,7 +274,7 @@ p.fine{margin-top:10px}
         <li>위 탭에서 <b>코인 · 주식 · 기타</b>를 고릅니다. 세 탭은 같은 꼴입니다.</li>
         <li><b>확신도 카드</b>를 누르면 아래 지표 그래프와 분석 요약 · 근거가 그 자산으로 바뀝니다.</li>
         <li><b>근거</b> 칸에서 신호마다 읽은 값과 방향, 계산식을 봅니다.</li>
-        <li>맨 위 띠처럼, 모든 숫자는 정보이며 투자 권유가 아닙니다. 사고팔 시점은 사용자가 정합니다.</li>
+        <li>모든 숫자는 정보이며 투자 권유가 아닙니다. 사고팔 시점은 사용자가 정합니다.</li>
       </ol>
       <h2>낱말 풀이</h2>
       <dl>
@@ -311,12 +323,12 @@ p.fine{margin-top:10px}
   const scoreTxt = (c) => (c.score == null ? "보류" : c.score === 0 ? "0" : minus((c.score > 0 ? "+" : "") + c.score));
   const ARW = (x) => x == null ? ["–", "zero"] : x > 0 ? ["▲ " + minus("+" + x), "up"] : x < 0 ? ["▼ " + minus(String(x)), "down"] : ["· 0", "zero"];
   const M = D.meta;
-  $("band").textContent = M.band;
-  $("ref-line").textContent = `합성 일봉 · ${M.end.slice(5).replace("-", "/")} 종가 기준`;
   $("method").textContent = M.method;
   $("top3-link").href = M.top3_url;
   $("info").textContent = `${M.price_note} 확신도는 알프레도 v0 방식(가중치 모두 1)이며 Top3의 조원 기준 가중치를 쓰지 않습니다. ${M.version} · 만든 시각 ${M.built_at.replace("T", " ").slice(0, 16)} UTC · 글꼴 Pretendard(SIL OFL 1.1)에서 쓰는 글자만 넣음.`;
-  $("foot").textContent = `가격은 합성값입니다(실제 시세 아님). 확신도는 신호 일치도이며 확률·추천이 아닙니다. ${M.version}`;
+  const FOOT_SYN = `가격은 합성값입니다(실제 시세 아님). 확신도는 신호 일치도이며 확률·추천이 아닙니다. ${M.version}`;
+  const FOOT_TOP3 = "정보 제공용이며 투자 권유가 아닙니다. 코인 탭은 Top 3 Crypto 실시간 화면입니다. 시세·지수·뉴스의 출처와 약관은 Top 3 Crypto 공개 화면(top3-crypto.vercel.app)에 있습니다.";
+  const REF_SYN = `합성 일봉 · ${M.end.slice(5).replace("-", "/")} 종가 기준`;
 
   let tab = "coin", sel = {}, days = 90;
   const T = () => D.tabs[tab];
@@ -324,18 +336,38 @@ p.fine{margin-top:10px}
 
   // ---- 탭 ----
   const DASH = ["coin", "stock", "other"];
+  let curView = "coin";
   function show(v) {
     if (!["coin", "stock", "other", "ai", "study", "settings"].includes(v)) v = "coin";
-    $("view-dash").hidden = !DASH.includes(v);
+    curView = v;
+    $("view-dash").hidden = !DASH.includes(v) || v === "coin";
+    $("view-top3").hidden = v !== "coin";
+    $("foot").textContent = v === "coin" ? FOOT_TOP3 : FOOT_SYN;
+    $("ref-line").textContent = v === "coin" ? "Top 3 Crypto 실시간 · 바이낸스 현물" : REF_SYN;
+    if (v === "coin") { openTop3(); renderSug(); }
+    // 채팅창은 하나: 코인 탭에서는 Top3 홈 옆으로, 주식·기타에서는 원래 자리(그래프 옆)로 옮긴다
+    (v === "coin" ? $("coin-chat-slot") : document.querySelector("#view-dash .chart-chat")).appendChild($("chat"));
     ["ai", "study", "settings"].forEach((x) => { $("view-" + x).hidden = x !== v; });
     document.querySelectorAll(".tabs button").forEach((b) => { const on = b.dataset.view === v; b.classList.toggle("on", on); b.setAttribute("aria-selected", on); });
-    if (DASH.includes(v)) { tab = v; renderAll(); }
+    if (DASH.includes(v) && v !== "coin") { tab = v; renderAll(); }
   }
   document.querySelectorAll(".tabs button").forEach((b) => b.addEventListener("click", () => { show(b.dataset.view); history.replaceState(null, "", "#" + b.dataset.view); }));
 
+  // ---- 코인: Top3 홈 넣기(same origin: read iframe height) ----
+  const F = $("top3-frame");
+  function openTop3() {
+    if (F.dataset.src && F.src.indexOf("/top3/") < 0) F.src = F.dataset.src;
+  }
+  F.addEventListener("load", () => {
+    try { F.contentDocument.documentElement.dataset.theme = document.documentElement.dataset.theme; } catch (e) { /* 다른 주소면 넘어감 */ }
+  });
+  setInterval(() => {
+    try { const h = F.contentDocument.documentElement.scrollHeight; if (h && Math.abs(h - F.offsetHeight) > 4) F.style.height = h + "px"; } catch (e) { /* 다른 주소 */ }
+  }, 400);
+
   // ---- 설정 ----
   function setOpt(k, v) {
-    if (k === "theme") document.documentElement.dataset.theme = v;
+    if (k === "theme") { document.documentElement.dataset.theme = v; try { $("top3-frame").contentDocument.documentElement.dataset.theme = v; } catch (e) { /* 아직 안 열림 */ } }
     if (k === "palette") document.documentElement.dataset.palette = v;
     document.querySelectorAll(`[data-set="${k}"] button`).forEach((b) => b.classList.toggle("on", b.dataset.v === v));
   }
@@ -454,15 +486,30 @@ p.fine{margin-top:10px}
   }
   function renderAll() { renderCards(); renderChart(); renderBrief(); renderEvidence(); renderSug(); }
 
+  // 코인 탭 채팅에 줄 화면 자료: Top3 홈(같은 주소의 iframe)에 지금 보이는 글과 신호 점
+  function coinNow() {
+    try { const m = /·\s*(BTC|ETH|XRP)/.exec(F.contentDocument.getElementById("chart-title").textContent); return m ? m[1] : "BTC"; } catch (e) { return "BTC"; }
+  }
+  function liveFacts() {
+    try {
+      const d = F.contentDocument, w = F.contentWindow, txt = (id) => ((d.getElementById(id) || {}).innerText || "").slice(0, 1500);
+      const sg = w.Top3LastSignals || { list: [] };
+      return { "카드": txt("cards"), "AI 분석": txt("ai-brief-body"), "근거": txt("ev-body"), "그래프": txt("chart-title"),
+        "4지표 일치 신호": { "기간(일)": sg.days, "수": sg.list.length, "4시간 뒤 맞음": sg.list.filter((g) => g.hit).length,
+          "4시간 뒤 확인된 수": sg.list.filter((g) => g.hit != null).length, "최근 5개": sg.list.slice(-5).map((g) => ({ "방향": g.dir > 0 ? "Long" : "Short", "가격": g.c, "4시간 뒤 변화": g.r4 })) } };
+    } catch (e) { return {}; }
+  }
+
   // ---- 알프레도 채팅(GPT): mvp/chat_server.py가 켜진 로컬 주소에서만 묻는다. 파일로 연 화면은 안내만 ----
   const chat = [];   // 이 화면 안에서만 둔다(저장하지 않음)
   $("chat-note").textContent = M.chat_note;
   const SUG = ["이 확신도는 어떻게 계산했어?", "변동성 국면이 뭐야?", "근거에서 엇갈리는 신호는?"];
-  function renderSug() { $("chat-sug").innerHTML = SUG.map((q) => `<button type="button">${esc(q)}</button>`).join(""); }
+  const SUG_COIN = ["그래프의 신호 점은 뭐야?", "MACD와 StochRSI는 뭐가 달라?", "근거에서 엇갈리는 신호는?"];
+  function renderSug() { $("chat-sug").innerHTML = (curView === "coin" ? SUG_COIN : SUG).map((q) => `<button type="button">${esc(q)}</button>`).join(""); }
   function addMsg(who, text) {
     const el = document.createElement("div");
     el.className = "msg " + who;
-    el.innerHTML = (who === "ai" ? '<span class="who">알프레도 · AI 답</span>' : "") + esc(minus(text));
+    el.innerHTML = esc(minus(text));
     $("chat-log").appendChild(el); $("chat-log").scrollTop = $("chat-log").scrollHeight;
     return el;
   }
@@ -479,7 +526,8 @@ p.fine{margin-top:10px}
     $("chat-send").disabled = true;
     try {
       const r = await fetch("api/chat", { method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tab, asset: A().id, message: q, history: chat.slice(-6) }) });
+        body: JSON.stringify(curView === "coin" ? { tab: "coin", asset: coinNow(), live: liveFacts(), message: q, history: chat.slice(-6) }
+          : { tab, asset: A().id, message: q, history: chat.slice(-6) }) });
       const j = await r.json();
       wait.remove();
       if (!r.ok) throw new Error(j.error || r.status);
