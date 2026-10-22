@@ -1,0 +1,595 @@
+{
+ "data": {
+  "BTC": {
+   "rows": 4112,
+   "start": "2015-07-20",
+   "end": "2026-10-21",
+   "columns": [
+    "open",
+    "high",
+    "low",
+    "close",
+    "volume"
+   ],
+   "na_cells": 0,
+   "duplicate_dates": 0,
+   "calendar_days": 4112,
+   "missing_days": 0,
+   "gaps": [],
+   "n_gaps": 0,
+   "invalid_ohlc_rows": 0
+  },
+  "ETH": {
+   "rows": 3807,
+   "start": "2016-05-18",
+   "end": "2026-10-21",
+   "columns": [
+    "open",
+    "high",
+    "low",
+    "close",
+    "volume"
+   ],
+   "na_cells": 0,
+   "duplicate_dates": 0,
+   "calendar_days": 3809,
+   "missing_days": 2,
+   "gaps": [
+    [
+     "2016-05-21",
+     "2016-05-22",
+     2
+    ]
+   ],
+   "n_gaps": 1,
+   "invalid_ohlc_rows": 0
+  },
+  "XRP": {
+   "rows": 1891,
+   "start": "2019-02-26",
+   "end": "2026-10-21",
+   "columns": [
+    "open",
+    "high",
+    "low",
+    "close",
+    "volume"
+   ],
+   "na_cells": 0,
+   "duplicate_dates": 0,
+   "calendar_days": 2795,
+   "missing_days": 904,
+   "gaps": [
+    [
+     "2021-01-20",
+     "2023-07-12",
+     904
+    ]
+   ],
+   "n_gaps": 1,
+   "invalid_ohlc_rows": 0
+  },
+  "FNG": {
+   "rows": 3181,
+   "start": "2018-02-01",
+   "end": "2026-10-21",
+   "missing_days": 4,
+   "na_cells": 0
+  }
+ },
+ "outliers_btc": {
+  "rule": "|z| > 4.0 (일간 로그수익률, 전체 기간 평균·표준편차 기준). 지우지 않고 표시만 함",
+  "count": 22,
+  "events": [
+   {
+    "date": "2015-08-18",
+    "return_pct": -13.73,
+    "z": -4.26
+   },
+   {
+    "date": "2016-01-15",
+    "return_pct": -16.86,
+    "z": -5.32
+   },
+   {
+    "date": "2017-07-17",
+    "return_pct": 16.92,
+    "z": 4.43
+   },
+   {
+    "date": "2017-07-20",
+    "return_pct": 27.2,
+    "z": 6.84
+   },
+   {
+    "date": "2017-09-14",
+    "return_pct": -15.69,
+    "z": -4.92
+   },
+   {
+    "date": "2017-12-06",
+    "return_pct": 20.24,
+    "z": 5.23
+   },
+   {
+    "date": "2017-12-07",
+    "return_pct": 23.42,
+    "z": 5.97
+   },
+   {
+    "date": "2018-01-16",
+    "return_pct": -14.86,
+    "z": -4.64
+   },
+   {
+    "date": "2018-02-05",
+    "return_pct": -15.46,
+    "z": -4.84
+   },
+   {
+    "date": "2018-11-19",
+    "return_pct": -14.87,
+    "z": -4.64
+   },
+   {
+    "date": "2019-04-02",
+    "return_pct": 18.49,
+    "z": 4.81
+   },
+   {
+    "date": "2019-06-27",
+    "return_pct": -13.68,
+    "z": -4.24
+   },
+   {
+    "date": "2019-07-16",
+    "return_pct": -13.19,
+    "z": -4.08
+   },
+   {
+    "date": "2019-10-25",
+    "return_pct": 16.65,
+    "z": 4.36
+   },
+   {
+    "date": "2020-03-12",
+    "return_pct": -38.81,
+    "z": -14.08
+   },
+   {
+    "date": "2020-03-13",
+    "return_pct": 16.07,
+    "z": 4.22
+   },
+   {
+    "date": "2021-01-21",
+    "return_pct": -13.09,
+    "z": -4.05
+   },
+   {
+    "date": "2021-02-08",
+    "return_pct": 19.49,
+    "z": 5.05
+   },
+   {
+    "date": "2021-05-19",
+    "return_pct": -14.29,
+    "z": -4.45
+   },
+   {
+    "date": "2022-06-13",
+    "return_pct": -15.42,
+    "z": -4.83
+   },
+   {
+    "date": "2022-11-09",
+    "return_pct": -14.33,
+    "z": -4.46
+   },
+   {
+    "date": "2026-02-05",
+    "return_pct": -13.98,
+    "z": -4.34
+   }
+  ],
+  "filled_days": 0
+ },
+ "trend": {
+  "golden_cross": [
+   "2019-04-23",
+   "2020-02-18",
+   "2020-05-21",
+   "2021-09-15",
+   "2023-02-07",
+   "2023-10-30",
+   "2024-10-28",
+   "2025-05-22",
+   "2026-09-08"
+  ],
+  "dead_cross": [
+   "2018-03-30",
+   "2019-10-26",
+   "2020-03-26",
+   "2021-06-19",
+   "2022-01-14",
+   "2023-09-12",
+   "2024-08-10",
+   "2025-04-07",
+   "2025-11-16"
+  ],
+  "share_days_above_ma200_pct": 61.7,
+  "fwd30_above_ma200": {
+   "n": 2383,
+   "mean_pct": 9.08,
+   "median_pct": 4.25,
+   "pos_share_pct": 59.0
+  },
+  "fwd30_below_ma200": {
+   "n": 1500,
+   "mean_pct": 2.39,
+   "median_pct": 1.55,
+   "pos_share_pct": 55.3
+  },
+  "last_close": 84024.67,
+  "last_ma50": 81699.42,
+  "last_ma200": 72732.25,
+  "last_date": "2026-10-21",
+  "yearly_return_pct": {
+   "2016": 126.2,
+   "2017": 1324.2,
+   "2018": -73.4,
+   "2019": 94.1,
+   "2020": 304.6,
+   "2021": 59.4,
+   "2022": -64.2,
+   "2023": 155.8,
+   "2024": 120.8,
+   "2025": -6.3,
+   "2026": -4.0
+  }
+ },
+ "halvings": [
+  {
+   "halving": "2016-07-09",
+   "price": 657.61,
+   "ret_365d_pct": 281.5,
+   "peak_date": "2017-12-16",
+   "days_to_peak": 525,
+   "ret_to_peak_pct": 2888.1,
+   "drawdown_after_peak_pct": -83.8,
+   "trough_date": "2018-12-15",
+   "window_end": "2020-05-10",
+   "peak_window_days": 730
+  },
+  {
+   "halving": "2020-05-11",
+   "price": 8572.4,
+   "ret_365d_pct": 562.0,
+   "peak_date": "2021-11-08",
+   "days_to_peak": 546,
+   "ret_to_peak_pct": 688.1,
+   "drawdown_after_peak_pct": -76.7,
+   "trough_date": "2022-11-21",
+   "window_end": "2024-04-19",
+   "peak_window_days": 730
+  },
+  {
+   "halving": "2024-04-20",
+   "price": 64968.87,
+   "ret_365d_pct": 31.1,
+   "peak_date": "2025-10-06",
+   "days_to_peak": 534,
+   "ret_to_peak_pct": 92.0,
+   "drawdown_after_peak_pct": -53.1,
+   "trough_date": "2026-06-30",
+   "window_end": "2026-10-21",
+   "peak_window_days": 730
+  }
+ ],
+ "volatility": {
+  "vol30_by_year_mean_pct": {
+   "2015": 57.2,
+   "2016": 44.4,
+   "2017": 84.3,
+   "2018": 79.9,
+   "2019": 68.4,
+   "2020": 68.5,
+   "2021": 78.9,
+   "2022": 63.2,
+   "2023": 41.7,
+   "2024": 51.4,
+   "2025": 41.1,
+   "2026": 42.2
+  },
+  "vol30_last_pct": 23.5,
+  "vol30_max": {
+   "date": "2020-04-06",
+   "pct": 209.4
+  },
+  "corr_vol30_vs_fng": -0.172,
+  "corr_vol30_vs_fng_distance_from_50": 0.308,
+  "overlap_days": 3185
+ },
+ "seasonality": {
+  "weekday_overall_mean_pct": 0.134,
+  "weekday_ci_excluding_overall_mean": [],
+  "weekday_anova_F": 1.36,
+  "weekday_anova_df": [
+   6,
+   3940
+  ],
+  "monthly": {
+   "1": {
+    "mean_pct": 1.7,
+    "median_pct": -0.3,
+    "pos_share_pct": 45.0,
+    "n": 11
+   },
+   "2": {
+    "mean_pct": 9.7,
+    "median_pct": 11.2,
+    "pos_share_pct": 73.0,
+    "n": 11
+   },
+   "3": {
+    "mean_pct": 1.1,
+    "median_pct": 1.9,
+    "pos_share_pct": 55.0,
+    "n": 11
+   },
+   "4": {
+    "mean_pct": 11.6,
+    "median_pct": 11.8,
+    "pos_share_pct": 73.0,
+    "n": 11
+   },
+   "5": {
+    "mean_pct": 8.8,
+    "median_pct": 9.5,
+    "pos_share_pct": 55.0,
+    "n": 11
+   },
+   "6": {
+    "mean_pct": -1.4,
+    "median_pct": -3.3,
+    "pos_share_pct": 45.0,
+    "n": 11
+   },
+   "7": {
+    "mean_pct": 8.9,
+    "median_pct": 8.0,
+    "pos_share_pct": 73.0,
+    "n": 11
+   },
+   "8": {
+    "mean_pct": 4.0,
+    "median_pct": -6.5,
+    "pos_share_pct": 36.0,
+    "n": 11
+   },
+   "9": {
+    "mean_pct": -1.5,
+    "median_pct": -3.1,
+    "pos_share_pct": 45.0,
+    "n": 11
+   },
+   "10": {
+    "mean_pct": 16.2,
+    "median_pct": 10.9,
+    "pos_share_pct": 82.0,
+    "n": 11
+   },
+   "11": {
+    "mean_pct": 5.4,
+    "median_pct": -0.3,
+    "pos_share_pct": 50.0,
+    "n": 10
+   },
+   "12": {
+    "mean_pct": 8.9,
+    "median_pct": -3.2,
+    "pos_share_pct": 40.0,
+    "n": 10
+   }
+  },
+  "weekday_mean_daily_logret_pct": {
+   "월": {
+    "mean": 0.343,
+    "ci95": 0.317,
+    "n": 564
+   },
+   "화": {
+    "mean": 0.011,
+    "ci95": 0.277,
+    "n": 564
+   },
+   "수": {
+    "mean": 0.294,
+    "ci95": 0.308,
+    "n": 564
+   },
+   "목": {
+    "mean": -0.136,
+    "ci95": 0.363,
+    "n": 563
+   },
+   "금": {
+    "mean": 0.141,
+    "ci95": 0.295,
+    "n": 564
+   },
+   "토": {
+    "mean": 0.243,
+    "ci95": 0.215,
+    "n": 564
+   },
+   "일": {
+    "mean": 0.038,
+    "ci95": 0.227,
+    "n": 564
+   }
+  },
+  "weekday_ci_all_include_zero": false,
+  "daily_std_pct": 3.51
+ },
+ "fear_greed_forward": {
+  "by_class": {
+   "극단적 공포": {
+    "n_days": 742,
+    "n_episodes": 128,
+    "mean_pct": 2.98,
+    "median_pct": 1.5,
+    "pos_share_pct": 57.1
+   },
+   "공포": {
+    "n_days": 909,
+    "n_episodes": 217,
+    "mean_pct": 0.91,
+    "median_pct": -0.29,
+    "pos_share_pct": 49.4
+   },
+   "중립": {
+    "n_days": 401,
+    "n_episodes": 158,
+    "mean_pct": 3.32,
+    "median_pct": 2.91,
+    "pos_share_pct": 53.9
+   },
+   "탐욕": {
+    "n_days": 822,
+    "n_episodes": 160,
+    "mean_pct": 5.29,
+    "median_pct": 1.77,
+    "pos_share_pct": 54.9
+   },
+   "극단적 탐욕": {
+    "n_days": 281,
+    "n_episodes": 64,
+    "mean_pct": 13.1,
+    "median_pct": 5.34,
+    "pos_share_pct": 60.1
+   }
+  },
+  "all_days": {
+   "n": 3155,
+   "mean_pct": 3.93,
+   "median_pct": 1.55,
+   "pos_share_pct": 54.2
+  },
+  "note": "30일 뒤 수익률 창이 서로 겹치므로 날 수(n_days)는 독립 표본 수가 아니다"
+ },
+ "decomposition": {
+  "series": "주간 마지막 종가의 자연로그, 2016-01–2026-10",
+  "method": "고전 가법 분해: 추세 = 2×52주 중심 이동평균, 계절 = 연중 주차별 평균 편차(합 0), 잔차 = 나머지",
+  "seasonal_strength": 0.027,
+  "trend_strength": 0.974,
+  "seasonal_amplitude_pct": 16.1,
+  "resid_std_pct": 22.3,
+  "seasonal_peak_week": 1,
+  "seasonal_trough_week": 38
+ },
+ "forecast": {
+  "rolling_origin": {
+   "windows": 24,
+   "window_days": 30,
+   "by_method": {
+    "그대로(naive)": {
+     "mean_MAPE_pct": 6.63,
+     "median_MAPE_pct": 4.36,
+     "wins": 9
+    },
+    "추세 연장(drift, 지난 1년 기울기)": {
+     "mean_MAPE_pct": 6.83,
+     "median_MAPE_pct": 4.57,
+     "wins": 9
+    },
+    "7일 평균": {
+     "mean_MAPE_pct": 6.93,
+     "median_MAPE_pct": 4.59,
+     "wins": 6
+    },
+    "주간 반복(seasonal naive, 7일)": {
+     "mean_MAPE_pct": 7.33,
+     "median_MAPE_pct": 5.13,
+     "wins": 0
+    }
+   },
+   "best_by_mean_MAPE": "그대로(naive)"
+  },
+  "train_end": "2026-09-21",
+  "test": "2026-09-22–2026-10-21",
+  "test_days": 30,
+  "metrics": {
+   "그대로(naive)": {
+    "MAE_usd": 3035.0,
+    "MAPE_pct": 3.66,
+    "end_error_pct": 3.06
+   },
+   "추세 연장(drift, 지난 1년 기울기)": {
+    "MAE_usd": 2050.0,
+    "MAPE_pct": 2.47,
+    "end_error_pct": 0.66
+   },
+   "7일 평균": {
+    "MAE_usd": 3854.0,
+    "MAPE_pct": 4.58,
+    "end_error_pct": -5.14
+   },
+   "주간 반복(seasonal naive, 7일)": {
+    "MAE_usd": 5017.0,
+    "MAPE_pct": 5.98,
+    "end_error_pct": -9.38
+   }
+  },
+  "best_by_MAE": "추세 연장(drift, 지난 1년 기울기)",
+  "test_actual_change_pct": -2.97,
+  "drift_daily_pct": -0.078
+ },
+ "compare": {
+  "daily_return_corr_since_2019_02": {
+   "BTC": {
+    "BTC": 1.0,
+    "ETH": 0.83,
+    "XRP": 0.62
+   },
+   "ETH": {
+    "BTC": 0.83,
+    "ETH": 1.0,
+    "XRP": 0.67
+   },
+   "XRP": {
+    "BTC": 0.62,
+    "ETH": 0.67,
+    "XRP": 1.0
+   }
+  },
+  "stats": {
+   "BTC": {
+    "ann_vol_pct": 66.8,
+    "max_drawdown_pct": -83.8,
+    "mdd_peak": "2017-12-16",
+    "mdd_trough": "2018-12-15",
+    "rows": 4112
+   },
+   "ETH": {
+    "ann_vol_pct": 92.8,
+    "max_drawdown_pct": -94.0,
+    "mdd_peak": "2018-01-13",
+    "mdd_trough": "2018-12-14",
+    "rows": 3809
+   },
+   "XRP": {
+    "ann_vol_pct": 86.2,
+    "max_drawdown_pct": -72.1,
+    "mdd_peak": "2025-07-22",
+    "mdd_trough": "2026-08-16",
+    "rows": 1891
+   }
+  },
+  "xrp_long_gap": [
+   "2021-01-20",
+   "2023-07-12",
+   904
+  ]
+ }
+}
