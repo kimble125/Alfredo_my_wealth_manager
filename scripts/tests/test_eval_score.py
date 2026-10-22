@@ -1,5 +1,5 @@
 """eval_score.py 단위 시험. 가짜 질문 4개·답변 3개로 채점 경로를 검증한다.
-실행: cd /Users/kimble/01_Projects/12_expert_agents && python3 -m unittest scripts.tests.test_eval_score -v
+실행(저장소 루트에서): python3 -m unittest scripts.tests.test_eval_score -v
 """
 import csv
 import json

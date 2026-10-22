@@ -28,7 +28,7 @@
 저장소 루트에서 실행한다(패키지 상대 임포트).
 
 ```bash
-cd /Users/kimble/01_Projects/Alfredo
+# 저장소 루트에서
 python3 -m alfredo.cli --help
 python3 -m alfredo.cli --price BTC=100000000 init
 python3 -m alfredo.cli --price BTC=100000000 deposit 1000000
@@ -45,14 +45,14 @@ python3 -m alfredo.cli --price BTC=100000000 --price XRP=3300 report --out data/
 ## 시험
 
 ```bash
-python3 -I -m unittest discover -s /Users/kimble/01_Projects/Alfredo/alfredo/tests
+python3 -I -m unittest discover -s alfredo/tests
 ```
 
 2026-10-07 기준 16개 통과(확인됨).
 
 ## 데이터 위치
 
-개인 장부·스냅샷·보고는 모두 **`data/alfredo/`**(저장소 루트 기준, 절대경로 `/Users/kimble/01_Projects/Alfredo/data/alfredo/`)에 둔다. 설계서·로드맵도 같은 경로를 쓴다(10-07 통일). 개인 보유 현황이 들어가므로 `.gitignore`에 `data/alfredo/`가 들어 있다(확인: `git check-ignore data/alfredo/x`).
+개인 장부·스냅샷·보고는 모두 **`data/alfredo/`**(저장소 루트 기준, `data/alfredo/`)에 둔다. 설계서·로드맵도 같은 경로를 쓴다(10-07 통일). 개인 보유 현황이 들어가므로 `.gitignore`에 `data/alfredo/`가 들어 있다(확인: `git check-ignore data/alfredo/x`).
 
 ## 다음 단계(제안, 결정은 호연)
 

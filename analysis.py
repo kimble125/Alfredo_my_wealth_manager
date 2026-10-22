@@ -48,6 +48,21 @@ FILL_MAX_GAP = 3        # 3일 이하 빈 날만 직전 값으로 채움(거래�
 Z_OUTLIER = 4.0         # 일간 로그수익률 |z| > 4 를 이상치로 '표시'만 한다
 TEST_DAYS = 30          # 베이스라인 예측 검증 구간
 S = {}                  # summary.json 으로 남길 숫자
+LOG = []                # outputs/run_log.txt 로 남길 실행 출력(기본 정보 확인)
+SRC_PRICE = "가격: Coinbase Exchange 일봉(UTC 자정)"
+SRC_FNG = "공포탐욕 지수: alternative.me Crypto Fear & Greed Index (https://alternative.me/crypto/fear-and-greed-index/)"
+
+
+def say(msg: str) -> None:
+    print(msg)
+    LOG.append(msg)
+
+
+def save(fig, name: str, fng: bool = False) -> None:
+    """그림 아래에 출처를 적고 저장한다(alternative.me 이용 규칙: 자료 옆 출처 표기)."""
+    fig.text(0.005, -0.02, SRC_PRICE + (" · " + SRC_FNG if fng else ""), fontsize=8, color="#555", ha="left", va="top")
+    fig.savefig(os.path.join(IMG, name))
+    plt.close(fig)
 
 
 def r2(x, n=2):
@@ -77,7 +92,7 @@ def basic_info(df: pd.DataFrame, name: str) -> dict:
         "calendar_days": int(len(full)), "missing_days": int(len(missing_days)), "gaps": gaps[:10], "n_gaps": len(gaps),
         "invalid_ohlc_rows": int(bad.sum()),
     }
-    print(f"[{name}] {info['rows']}행 {info['start']}–{info['end']} · 열 {info['columns']} · 빈 칸 {info['na_cells']} · "
+    say(f"[{name}] {info['rows']}행 {info['start']}–{info['end']} · 열 {info['columns']} · 빈 칸 {info['na_cells']} · "
           f"중복 {info['duplicate_dates']} · 빠진 날 {info['missing_days']}(구간 {info['n_gaps']}) · 값 오류 {info['invalid_ohlc_rows']}")
     return info
 
@@ -106,7 +121,7 @@ S["data"] = {"BTC": basic_info(btc_raw, "BTC"), "ETH": basic_info(eth_raw, "ETH"
 fng_full = pd.date_range(fng.index.min(), fng.index.max(), freq="D")
 S["data"]["FNG"] = {"rows": int(len(fng)), "start": fng.index.min().strftime("%Y-%m-%d"), "end": fng.index.max().strftime("%Y-%m-%d"),
                     "missing_days": int(len(fng_full.difference(fng.index))), "na_cells": int(fng.isna().sum().sum())}
-print(f"[FNG] {S['data']['FNG']}")
+say(f"[FNG] {S['data']['FNG']['rows']}행 {S['data']['FNG']['start']}–{S['data']['FNG']['end']} · 빈 칸 {S['data']['FNG']['na_cells']} · 빠진 날 {S['data']['FNG']['missing_days']}")
 
 btc, eth, xrp = prepare(btc_raw), prepare(eth_raw), prepare(xrp_raw)
 fng = fng.reindex(fng_full)
@@ -119,6 +134,7 @@ S["outliers_btc"] = {
     "count": int(len(out)),
     "events": [{"date": i.strftime("%Y-%m-%d"), "return_pct": r2((np.exp(v) - 1) * 100), "z": r2(z)} for i, v, z in zip(out.index, out["logret"], out["z"])],
     "filled_days": int(btc["filled"].sum()),
+    "count_if_z3": int((btc["z"].abs() > 3).sum()),
 }
 out.reset_index(names="date")[["date", "close", "logret", "z"]].to_csv(os.path.join(OUT, "btc_outliers.csv"), index=False)
 
@@ -166,6 +182,13 @@ for i, h in enumerate(hdates):
                  "trough_date": seg.loc[peak_day:].idxmin().strftime("%Y-%m-%d"),
                  "window_end": seg.index[-1].strftime("%Y-%m-%d"), "peak_window_days": PEAK_WINDOW})
 S["halvings"] = halv
+alt = []
+for i, h in enumerate(hdates):
+    nxt = hdates[i + 1] if i + 1 < len(hdates) else btc.index[-1] + pd.Timedelta(days=1)
+    seg = btc.loc[h:nxt - pd.Timedelta(days=1), "close"]
+    alt.append({"halving": h.strftime("%Y-%m-%d"), "peak_date": seg.idxmax().strftime("%Y-%m-%d"),
+                "days_to_peak": int((seg.idxmax() - h).days), "definition": "다음 반감기 전(또는 자료 끝)까지 최고 종가"})
+S["halvings_alt_definition"] = alt
 
 fig, ax = plt.subplots(figsize=(12, 5.5))
 ax.plot(btc.index, btc["close"], color="#222", lw=0.9, label="종가")
@@ -175,14 +198,14 @@ ax.scatter(golden, btc.loc[golden, "ma50"], marker="^", color="#2ca02c", s=60, z
 ax.scatter(dead, btc.loc[dead, "ma50"], marker="v", color="#9467bd", s=60, zorder=5, label=f"데드크로스({len(dead)}회)")
 for h, lab in HALVINGS.items():
     ax.axvline(pd.Timestamp(h), color="#ff7f0e", ls="--", lw=1)
-    ax.text(pd.Timestamp(h), btc["close"].min() * 1.15, f" {lab} ({h})", color="#ff7f0e", rotation=90, va="bottom", ha="right", fontsize=9)
+    ax.text(pd.Timestamp(h), btc["close"].min() * 1.15, f" {lab} ({h})", color="#d35400", rotation=90, va="bottom", ha="right", fontsize=9,
+            bbox=dict(facecolor="white", edgecolor="none", alpha=0.85, pad=1.5))
 ax.set_yscale("log")
 ax.set_title(f"비트코인 일봉 종가(로그 축)와 50·200일 이동평균 · 코인베이스 BTC-USD · {S['data']['BTC']['start']}–{S['data']['BTC']['end']}")
 ax.set_ylabel("USD (로그 축)")
 ax.legend(loc="lower right", fontsize=9)
 ax.grid(alpha=0.3, which="both")
-fig.savefig(os.path.join(IMG, "01_btc_price_ma.png"))
-plt.close(fig)
+save(fig, "01_btc_price_ma.png")
 
 # ---------------------------------------------------------------- 3. 변동성과 공포탐욕 (질문 2)
 btc["vol30"] = btc["logret"].rolling(30).std() * np.sqrt(365) * 100
@@ -198,7 +221,7 @@ S["volatility"] = {
 fig, (a1, a2) = plt.subplots(2, 1, figsize=(12, 6.5), sharex=True, gridspec_kw={"height_ratios": [1.3, 1]})
 a1.plot(btc.index, btc["vol30"], color="#d62728", lw=0.9)
 a1.set_ylabel("30일 변동성(연율, %)")
-a1.set_title("비트코인 30일 변동성(일간 로그수익률 표준편차 × √365)과 공포탐욕 지수")
+a1.set_title("비트코인 30일 변동성(일간 로그수익률 표준편차 × √365)과 비트코인 중심 공포탐욕 지수")
 a1.grid(alpha=0.3)
 a2.plot(fng.index, fng["value"], color="#555", lw=0.6)
 a2.fill_between(fng.index, 0, 100, where=fng["value"] <= 25, color="#d62728", alpha=0.15, label="극단적 공포(≤25)")
@@ -207,18 +230,22 @@ a2.set_ylim(0, 100)
 a2.set_ylabel("공포탐욕 지수(0–100)")
 a2.legend(loc="upper left", fontsize=9)
 a2.grid(alpha=0.3)
-a2.set_xlim(pd.Timestamp("2018-01-01"), btc.index[-1])
-fig.savefig(os.path.join(IMG, "02_volatility_fear_greed.png"))
-plt.close(fig)
+a2.set_xlim(btc.index[0], btc.index[-1])
+a2.text(pd.Timestamp("2016-01-01"), 50, "공포탐욕 지수 자료는\n2018-02-01부터", color="#777", fontsize=9, va="center")
+save(fig, "02_volatility_fear_greed.png", fng=True)
 
 # ---------------------------------------------------------------- 4. 계절성: 월·요일 (질문 3)
 monthly = btc["close"].resample("ME").last().pct_change() * 100
 monthly = monthly.loc["2016-01-01":]
 mt = pd.DataFrame({"y": monthly.index.year, "m": monthly.index.month, "r": monthly.values}).dropna()
+partial = not btc.index[-1].is_month_end
+partial_label = f"{btc.index[-1]:%Y-%m}" if partial else None
+mt_stats = mt.iloc[:-1] if partial else mt   # 미완 달은 월별 통계에서 뺀다(히트맵에는 표시)
 heat = mt.pivot(index="y", columns="m", values="r")
 heat.to_csv(os.path.join(OUT, "btc_monthly_returns_pct.csv"))
-by_month = mt.groupby("m")["r"].agg(["mean", "median", "std", "count"])
-by_month["pos_share"] = mt.groupby("m")["r"].apply(lambda s: (s > 0).mean() * 100)
+by_month = mt_stats.groupby("m")["r"].agg(["mean", "median", "std", "count"])
+by_month["pos_share"] = mt_stats.groupby("m")["r"].apply(lambda s: (s > 0).mean() * 100)
+by_month["pos_count"] = mt_stats.groupby("m")["r"].apply(lambda s: int((s > 0).sum()))
 wd = btc["logret"].dropna()
 wd = wd.loc["2016-01-01":]
 by_wd = wd.groupby(wd.index.dayofweek).agg(["mean", "std", "count"])
@@ -235,8 +262,10 @@ S["seasonality"] = {
     "weekday_overall_mean_pct": r2(all_mean * 100, 3),
     "weekday_ci_excluding_overall_mean": [WD[int(k)] for k, v in wd_diff_from_all.items() if v],
     "weekday_anova_F": r2(F_wd, 2), "weekday_anova_df": [6, int(len(wd) - 7)],
-    "monthly": {int(m): {"mean_pct": r2(r["mean"], 1), "median_pct": r2(r["median"], 1), "pos_share_pct": r2(r["pos_share"], 0), "n": int(r["count"])}
+    "monthly": {int(m): {"mean_pct": r2(r["mean"], 1), "median_pct": r2(r["median"], 1), "pos_share_pct": r2(r["pos_share"], 0),
+                         "pos_count": int(r["pos_count"]), "n": int(r["count"])}
                 for m, r in by_month.iterrows()},
+    "monthly_excluded_partial_month": partial_label,
     "weekday_mean_daily_logret_pct": {WD[int(k)]: {"mean": r2(r["mean"] * 100, 3), "ci95": r2(r["ci95"] * 100, 3), "n": int(r["count"])}
                                       for k, r in by_wd.iterrows()},
     "weekday_ci_all_include_zero": bool(((by_wd["mean"] - by_wd["ci95"]) < 0).all() and ((by_wd["mean"] + by_wd["ci95"]) > 0).all()),
@@ -251,11 +280,10 @@ for yi in range(heat.shape[0]):
     for mi in range(heat.shape[1]):
         v = heat.values[yi, mi]
         if not np.isnan(v):
-            ax.text(mi, yi, f"{v:.0f}", ha="center", va="center", fontsize=8, color="black")
-ax.set_title("비트코인 월별 수익률(%) · 월말 종가 기준 · 2016–2026")
+            ax.text(mi, yi, f"{int(round(v)) + 0:d}", ha="center", va="center", fontsize=8, color="black")
+ax.set_title("비트코인 월별 수익률(%) · 월말 종가 기준 · 2016–2026" + (f" · {partial_label}은 {btc.index[-1].day}일까지(미완, 월별 통계에서 제외)" if partial else ""))
 fig.colorbar(im, ax=ax, label="월 수익률(%)")
-fig.savefig(os.path.join(IMG, "03_monthly_returns_heatmap.png"))
-plt.close(fig)
+save(fig, "03_monthly_returns_heatmap.png")
 
 fig, (a1, a2) = plt.subplots(1, 2, figsize=(12, 4.6))
 a1.bar(range(7), by_wd["mean"] * 100, yerr=by_wd["ci95"] * 100, color="#1f77b4", capsize=4)
@@ -270,11 +298,10 @@ a2.plot(by_month.index, by_month["mean"], "ko--", ms=4, label="평균")
 a2.axhline(0, color="#333", lw=0.8)
 a2.set_xticks(range(1, 13), [f"{m}" for m in range(1, 13)])
 a2.set_xlabel("월")
-a2.set_title("월별 수익률(%) 중앙값·평균 · 해마다 n=10–11")
+a2.set_title(f"월별 수익률(%) 중앙값·평균 · 달마다 n={int(by_month['count'].min())}–{int(by_month['count'].max())}")
 a2.legend(fontsize=9)
 a2.grid(alpha=0.3, axis="y")
-fig.savefig(os.path.join(IMG, "04_weekday_month_effects.png"))
-plt.close(fig)
+save(fig, "04_weekday_month_effects.png")
 
 # ---------------------------------------------------------------- 5. 공포탐욕 구간 뒤 30일 수익률 (질문 4)
 ORDER = ["Extreme Fear", "Fear", "Neutral", "Greed", "Extreme Greed"]
@@ -292,7 +319,7 @@ S["fear_greed_forward"] = {
                          "mean_pct": r2(r["mean_pct"]), "median_pct": r2(r["median_pct"]), "pos_share_pct": r2(r["pos_share_pct"], 1)}
                  for k, r in fwd_tbl.iterrows()},
     "all_days": base,
-    "note": "30일 뒤 수익률 창이 서로 겹치므로 날 수(n_days)는 독립 표본 수가 아니다",
+    "note": "n_episodes는 같은 분류가 연속된 덩어리 수다. 날 수와 덩어리 수 모두 독립 표본 수가 아니다(30일 창이 겹침). 유효 표본 수는 추정하지 않았다",
 }
 fig, ax = plt.subplots(figsize=(11, 4.8))
 data_box = [jj.loc[jj["classification"] == k, "fwd30"] * 100 for k in ORDER]
@@ -307,8 +334,7 @@ ax.set_ylabel("30일 뒤 수익률(%)")
 ax.set_title("공포탐욕 분류별, 그날 산 경우 30일 뒤 수익률 분포(상자 = 25–75%, 수염 = 1.5 IQR)")
 ax.legend(loc="lower right", fontsize=9)
 ax.grid(alpha=0.3, axis="y")
-fig.savefig(os.path.join(IMG, "05_fear_greed_forward_returns.png"))
-plt.close(fig)
+save(fig, "05_fear_greed_forward_returns.png", fng=True)
 
 # ---------------------------------------------------------------- 6. 보너스 A: 고전 분해(주간 로그가격, 주기 52주)
 wk = np.log(btc["close"].resample("W-SUN").last().loc["2016-01-01":])
@@ -337,8 +363,7 @@ for a, s, t, c in zip(axs, [wk, trend, seasonal, resid], ["관측값(로그 가�
     a.set_ylabel(t, fontsize=9)
     a.grid(alpha=0.3)
 axs[0].set_title(f"보너스 A · 비트코인 주간 로그가격 고전 분해 · 계절 강도 {f_seas:.2f}, 추세 강도 {f_trend:.2f} (0–1, 클수록 뚜렷)")
-fig.savefig(os.path.join(IMG, "06_decomposition.png"))
-plt.close(fig)
+save(fig, "06_decomposition.png")
 
 # ---------------------------------------------------------------- 7. 보너스 B: 베이스라인 예측(마지막 30일)
 cl = btc["close"].dropna()
@@ -397,8 +422,7 @@ ax.set_ylabel("USD")
 ax.legend(fontsize=8.5, loc="upper left")
 ax.grid(alpha=0.3)
 ax.xaxis.set_major_formatter(mdates.DateFormatter("%m-%d"))
-fig.savefig(os.path.join(IMG, "07_baseline_forecast.png"))
-plt.close(fig)
+save(fig, "07_baseline_forecast.png")
 
 # ---------------------------------------------------------------- 8. 코인 비교(BTC·ETH·XRP)와 결측 구간
 def mdd(c: pd.Series) -> tuple[float, str, str]:
@@ -432,9 +456,10 @@ ax.set_ylabel("2019-02-26 = 100 (로그 축)")
 ax.set_title("세 코인 누적 흐름 비교(코인베이스 일봉) · 회색 = 코인베이스 XRP 거래 중단으로 빈 구간")
 ax.legend(fontsize=9)
 ax.grid(alpha=0.3, which="both")
-fig.savefig(os.path.join(IMG, "08_coin_compare.png"))
-plt.close(fig)
+save(fig, "08_coin_compare.png")
 
+with open(os.path.join(OUT, "run_log.txt"), "w", encoding="utf-8") as f:
+    f.write("python analysis.py 실행 출력(기본 정보 확인)\n" + "\n".join(LOG) + "\n")
 with open(os.path.join(OUT, "summary.json"), "w", encoding="utf-8") as f:
     json.dump(S, f, ensure_ascii=False, indent=1)
 print("그림:", sorted(os.listdir(IMG)))

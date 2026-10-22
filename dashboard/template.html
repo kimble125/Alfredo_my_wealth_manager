@@ -70,7 +70,7 @@ svg text{fill:var(--muted);font-size:11px}
     <section class="card chart"><h3 id="t-price">가격과 이동평균</h3><div id="c-price" style="position:relative"></div><div class="legend" id="lg-price"></div></section>
     <div class="row2">
       <section class="card chart"><h3 id="t-vol">변동성(연율, %)</h3><div id="c-vol" style="position:relative"></div></section>
-      <section class="card chart"><h3>공포탐욕 지수(0–100, 시장 전체)</h3><div id="c-fng" style="position:relative"></div></section>
+      <section class="card chart"><h3>공포탐욕 지수(0–100, 비트코인 중심 · alternative.me)</h3><div id="c-fng" style="position:relative"></div></section>
     </div>
     <p class="foot">가격: Coinbase Exchange 일봉(UTC 자정) · Data: Fear &amp; Greed Index by <a href="https://alternative.me/crypto/fear-and-greed-index/">alternative.me</a> · 분석 리포트와 계산 방법: 저장소의 REPORT.md · 이 화면은 바깥 주소를 부르지 않습니다(데이터는 파일 안에 있음).</p>
   </main>
@@ -90,7 +90,7 @@ const DATA = /*__DATA__*/null;
 const DAY = 86400000;
 const NAMES = {BTC: "비트코인", ETH: "이더리움", XRP: "리플"};
 const COLORS = {BTC: "#f7931a", ETH: "#8c9eff", XRP: "#c9d1de"};
-const MA_COL = {20: "#7fd8e0", 50: "#4f9dff", 200: "#ff6b6b"};
+const MA_COL = {20: "#ffe066", 50: "#4f9dff", 200: "#ff6b6b"};
 const FNG_KO = ["극단적 공포", "공포", "중립", "탐욕", "극단적 탐욕"];
 const PRESETS = {bubble17: ["2017-01-01", "2018-12-31", "2017 거품"], bull21: ["2020-03-13", "2021-11-30", "2020–21 강세장"],
                  bear22: ["2022-01-01", "2022-12-31", "2022 약세장"], halv24: ["2024-04-20", null, "4차 반감기 뒤"]};
@@ -172,7 +172,7 @@ function kpis(st) {
     ["최대 낙폭", `<span class="down">${fmtP(st.mdd)}</span>`, `${st.mdPeak} 고점 → ${st.mdTrough}`],
     [`${S.volw}일 변동성(연율)`, st.vol == null ? "–" : st.vol.toFixed(1) + "%", st.volPct == null ? "" : `전체 기록 중 하위 ${st.volPct.toFixed(0)}%`],
     ["추세 국면(기간 끝)", regime, st.ma200 == null ? "" : `200일선 ${fmtUSD(st.ma200)} · 기간 중 위 ${st.shareAbove == null ? "–" : st.shareAbove.toFixed(0) + "%"}의 날`],
-    ["공포탐욕(기간 끝)", st.fv == null ? "–" : `${st.fv} · ${FNG_KO[st.fc]}`, "시장 심리 0–100 · alternative.me"],
+    ["공포탐욕(기간 끝)", st.fv == null ? "–" : `${st.fv} · ${FNG_KO[st.fc]}`, "비트코인 중심 심리 0–100 · alternative.me"],
   ];
   $("kpis").innerHTML = items.map(([l, v, s]) => `<div class="card kpi"><div class="lab">${l}</div><div class="val">${v}</div><div class="sub">${s}</div></div>`).join("");
 }
@@ -225,8 +225,8 @@ function bubbles(st, sr, r) {
   if (st.ma200 != null) {
     const pos = st.c1 > st.ma200 ? "위" : "아래";
     let t = `${st.d1} 종가는 200일 이동평균 <b>${pos}</b>에 있어요(종가 ${fmtUSD(st.c1)}, 200일선 ${fmtUSD(st.ma200)}). 이 기간에는 ${st.shareAbove.toFixed(0)}%의 날이 200일선 위였습니다.`;
-    if (easy) t += `<span class="ref">200일 이동평균: 최근 200일 종가의 평균이에요. 그 위에 있으면 긴 흐름이 오르는 쪽이라고 읽어요.</span>`;
-    else t += `<span class="ref">참고(BTC, 2016–2026): 200일선 위였던 날의 30일 뒤 수익률 중앙값 ${fmtP(R.fwd30_above_ma200.median_pct, 2)}(${R.fwd30_above_ma200.n.toLocaleString()}일), 아래였던 날 ${fmtP(R.fwd30_below_ma200.median_pct, 2)}(${R.fwd30_below_ma200.n.toLocaleString()}일). 국면을 설명하는 숫자이지 매수 신호가 아니에요.</span>`;
+    if (easy) t += `<span class="ref">200일 이동평균: 최근 200일 종가의 평균이에요. 흔히 그 위에 있으면 긴 흐름이 오르는 쪽이라고 읽지만, 앞날을 보장하진 않아요.</span>`;
+    else t += `<span class="ref">참고(${coin === "BTC" ? "" : "선택 코인이 아니라 "}BTC 기준, 2016–2026): BTC가 200일선 위였던 날의 30일 뒤 수익률 중앙값 ${fmtP(R.fwd30_above_ma200.median_pct, 2)}(${R.fwd30_above_ma200.n.toLocaleString()}일), 아래였던 날 ${fmtP(R.fwd30_below_ma200.median_pct, 2)}(${R.fwd30_below_ma200.n.toLocaleString()}일). 국면을 설명하는 숫자이지 매수 신호가 아니에요.</span>`;
     out.push(t);
   } else out.push(`이 기간 끝에는 200일 이동평균을 계산할 자료가 모자라요(빈 날이 섞이면 계산하지 않아요).`);
   if (st.vol != null) {
@@ -238,13 +238,13 @@ function bubbles(st, sr, r) {
   if (st.fv != null) {
     const k = FNG_KO[st.fc], ref = R.fng_forward[k];
     let t = `${st.d1} 공포탐욕 지수는 <b>${st.fv}(${k})</b>입니다.`;
-    if (easy) t += `<span class="ref">공포탐욕 지수: 변동성·거래량·SNS 등으로 만든 시장 심리 점수(0–100)예요. alternative.me가 매일 발표해요.</span>`;
-    else if (ref) t += `<span class="ref">이 자료에서 '${k}'였던 날 산 경우 30일 뒤 수익률 중앙값은 ${fmtP(ref.median_pct, 2)}, 오른 비율 ${ref.pos_share_pct}%였어요(독립 구간 ${ref.n_episodes}개라 단정하기 어려워요).</span>`;
+    if (easy) t += `<span class="ref">공포탐욕 지수: 비트코인의 변동성·거래량·SNS 등으로 만든 심리 점수(0–100)예요. alternative.me가 매일 발표해요.</span>`;
+    else if (ref) t += `<span class="ref">참고(${coin === "BTC" ? "" : "선택 코인이 아니라 "}BTC 기준, 2018–2026): 지수가 '${k}'${(k.charCodeAt(k.length - 1) - 0xAC00) % 28 ? "이었던" : "였던"} 날 BTC를 샀다면 30일 뒤 수익률 중앙값은 ${fmtP(ref.median_pct, 2)}, 오른 비율 ${ref.pos_share_pct}%였어요. 같은 분류가 이어진 구간이 ${ref.n_episodes}개뿐이고 30일 창이 겹쳐 독립 표본이 아니에요. 과거 통계이지 신호가 아니에요.</span>`;
     out.push(t);
   } else out.push(`이 날짜에는 공포탐욕 지수 자료가 없어요(2018-02-01부터 있어요).`);
   if (!easy) {
     const rf = R.rolling_forecast, best = Object.keys(rf).reduce((x, y) => rf[x].mean_MAPE_pct <= rf[y].mean_MAPE_pct ? x : y);
-    out.push(`앞날 숫자는 드리지 않아요. 지난 24개월을 30일씩 재 보니 가장 단순한 '${best}'의 평균 오차가 ${rf[best].mean_MAPE_pct}%로 제일 작았어요. 단순한 기준선을 이기기도 어렵다는 뜻이라, 저는 예측 대신 지금 국면을 설명해 드립니다.<span class="ref">REPORT 7절 B</span>`);
+    out.push(`앞날 숫자는 드리지 않아요. BTC로 최근 720일을 30일씩 24번 나눠 재 보니 가장 단순한 '${best}'의 평균 오차가 ${rf[best].mean_MAPE_pct}%로 제일 작았어요. 단순한 기준선을 이기기도 어렵다는 뜻이라, 저는 예측 대신 지금 국면을 설명해 드립니다.<span class="ref">REPORT 7절 B</span>`);
   }
   out.push(`저는 숫자를 풀어 드릴 뿐, 사고팔 시점이나 비중은 정해 드리지 않아요. 결정은 늘 사용자께서 하십니다.`);
   $("bubbles").innerHTML = out.map((x) => `<div class="bub">${x}</div>`).join("");

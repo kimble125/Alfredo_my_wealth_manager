@@ -65,9 +65,12 @@ def fetch_coinbase_daily(product: str, start: str, end: str) -> list[list]:
         # 응답 한 줄: [time, low, high, open, close, volume]
         for ts, low, high, opn, close, vol in data:
             d = datetime.fromtimestamp(ts, tz=timezone.utc).strftime("%Y-%m-%d")
-            rows[d] = [d, opn, high, low, close, vol]
+            if start <= d <= end:  # API가 요청 시작일보다 앞선 캔들을 줄 수 있어(공식 문서) 범위 밖은 버린다
+                rows[d] = [d, opn, high, low, close, vol]
         t0 = t1 + timedelta(days=1)
         time.sleep(0.35)  # 공개 API 요청 간격(초당 10회 제한보다 넉넉히)
+    if not rows:
+        raise RuntimeError(f"{product}: {start}–{end} 구간에 받은 일봉이 없습니다(상품 이름·날짜를 확인하세요)")
     return [rows[k] for k in sorted(rows)]
 
 
@@ -102,6 +105,8 @@ def main() -> None:
         print(f"{product}: {len(rows)}일 ({rows[0][0]} – {rows[-1][0]}) → {os.path.relpath(path)}")
 
     fg = [r for r in fetch_fear_greed() if r[0] <= args.end]
+    if not fg:
+        raise RuntimeError("공포탐욕 지수를 받지 못했습니다")
     path = os.path.join(RAW, "fear_greed_1d.csv")
     write_csv(path, ["date", "value", "classification"], fg)
     print(f"Fear & Greed: {len(fg)}일 ({fg[0][0]} – {fg[-1][0]}) → {os.path.relpath(path)}")

@@ -3,7 +3,7 @@
 # Aside 루틴 "Alfredo 파생지표 수집"(03:30·15:30)과 중복 실행돼도 안전합니다(멱등 upsert).
 # Aside가 꺼져 있거나 계정 한도에 걸린 날의 보험용입니다. 해제: launchctl bootout gui/$(id -u)/com.kimble.alfredo-derivs
 # 주의: Aside가 만든 파일은 Gatekeeper가 막을 수 있습니다. 더블클릭이 안 되면 터미널에서
-#   bash "/Users/kimble/01_Projects/Alfredo/scripts/install_launchd_alfredo_derivs.command"
+#   bash scripts/install_launchd_alfredo_derivs.command   (저장소 루트에서)
 set -e
 HERE="$(cd "$(dirname "$0")" && pwd)"
 ROOT="$(cd "$HERE/.." && pwd -P)"

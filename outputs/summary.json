@@ -192,7 +192,8 @@
     "z": -4.34
    }
   ],
-  "filled_days": 0
+  "filled_days": 0,
+  "count_if_z3": 71
  },
  "trend": {
   "golden_cross": [
@@ -286,6 +287,26 @@
    "peak_window_days": 730
   }
  ],
+ "halvings_alt_definition": [
+  {
+   "halving": "2016-07-09",
+   "peak_date": "2017-12-16",
+   "days_to_peak": 525,
+   "definition": "다음 반감기 전(또는 자료 끝)까지 최고 종가"
+  },
+  {
+   "halving": "2020-05-11",
+   "peak_date": "2024-03-13",
+   "days_to_peak": 1402,
+   "definition": "다음 반감기 전(또는 자료 끝)까지 최고 종가"
+  },
+  {
+   "halving": "2024-04-20",
+   "peak_date": "2025-10-06",
+   "days_to_peak": 534,
+   "definition": "다음 반감기 전(또는 자료 끝)까지 최고 종가"
+  }
+ ],
  "volatility": {
   "vol30_by_year_mean_pct": {
    "2015": 57.2,
@@ -323,75 +344,88 @@
     "mean_pct": 1.7,
     "median_pct": -0.3,
     "pos_share_pct": 45.0,
+    "pos_count": 5,
     "n": 11
    },
    "2": {
     "mean_pct": 9.7,
     "median_pct": 11.2,
     "pos_share_pct": 73.0,
+    "pos_count": 8,
     "n": 11
    },
    "3": {
     "mean_pct": 1.1,
     "median_pct": 1.9,
     "pos_share_pct": 55.0,
+    "pos_count": 6,
     "n": 11
    },
    "4": {
     "mean_pct": 11.6,
     "median_pct": 11.8,
     "pos_share_pct": 73.0,
+    "pos_count": 8,
     "n": 11
    },
    "5": {
     "mean_pct": 8.8,
     "median_pct": 9.5,
     "pos_share_pct": 55.0,
+    "pos_count": 6,
     "n": 11
    },
    "6": {
     "mean_pct": -1.4,
     "median_pct": -3.3,
     "pos_share_pct": 45.0,
+    "pos_count": 5,
     "n": 11
    },
    "7": {
     "mean_pct": 8.9,
     "median_pct": 8.0,
     "pos_share_pct": 73.0,
+    "pos_count": 8,
     "n": 11
    },
    "8": {
     "mean_pct": 4.0,
     "median_pct": -6.5,
     "pos_share_pct": 36.0,
+    "pos_count": 4,
     "n": 11
    },
    "9": {
     "mean_pct": -1.5,
     "median_pct": -3.1,
     "pos_share_pct": 45.0,
+    "pos_count": 5,
     "n": 11
    },
    "10": {
-    "mean_pct": 16.2,
-    "median_pct": 10.9,
-    "pos_share_pct": 82.0,
-    "n": 11
+    "mean_pct": 17.8,
+    "median_pct": 12.7,
+    "pos_share_pct": 80.0,
+    "pos_count": 8,
+    "n": 10
    },
    "11": {
     "mean_pct": 5.4,
     "median_pct": -0.3,
     "pos_share_pct": 50.0,
+    "pos_count": 5,
     "n": 10
    },
    "12": {
     "mean_pct": 8.9,
     "median_pct": -3.2,
     "pos_share_pct": 40.0,
+    "pos_count": 4,
     "n": 10
    }
   },
+  "monthly_excluded_partial_month": "2026-10",
   "weekday_mean_daily_logret_pct": {
    "월": {
     "mean": 0.343,
@@ -476,7 +510,7 @@
    "median_pct": 1.55,
    "pos_share_pct": 54.2
   },
-  "note": "30일 뒤 수익률 창이 서로 겹치므로 날 수(n_days)는 독립 표본 수가 아니다"
+  "note": "n_episodes는 같은 분류가 연속된 덩어리 수다. 날 수와 덩어리 수 모두 독립 표본 수가 아니다(30일 창이 겹침). 유효 표본 수는 추정하지 않았다"
  },
  "decomposition": {
   "series": "주간 마지막 종가의 자연로그, 2016-01–2026-10",

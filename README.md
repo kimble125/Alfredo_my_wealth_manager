@@ -21,7 +21,7 @@
 | 시계열 데이터 1개, 100개 이상 | 비트코인 일봉 **4,112개**(2015-07-20 – 2026-10-21) · [REPORT 3절](REPORT.md#3-데이터-설명) | 충족 |
 | 데이터 출처·기간 명시 | Coinbase Exchange 공개 API, alternative.me API, 기간·행 수 표 · [REPORT 3절](REPORT.md#3-데이터-설명), [11절](REPORT.md#11-출처) | 충족 |
 | 분석 질문 3개 이상 | 4개(그래프 확인형·해석형 표시) · [REPORT 2절](REPORT.md#2-분석-질문) | 충족 |
-| 기본 정보(기간·컬럼·결측) 확인 | 자료별 빈 칸·중복·빠진 날·값 오류 표 · [REPORT 4절](REPORT.md#4-데이터-정제-결측치와-이상치), `analysis.py` 실행 출력 | 충족 |
+| 기본 정보(기간·컬럼·결측) 확인 | 자료별 빈 칸·중복·빠진 날·값 오류 표와 코드 출력 · [REPORT 4절](REPORT.md#4-데이터-정제-결측치와-이상치), [outputs/run_log.txt](outputs/run_log.txt) | 충족 |
 | 결측치·이상치 기준과 처리 | 3일 이하 공백만 채움, XRP 904일 공백은 비워 둠(원인 확인), 이상치 \|z\|>4 표시만 · [REPORT 4절](REPORT.md#4-데이터-정제-결측치와-이상치) | 충족 |
 | 시계열 기법 2개 이상 | 이동평균(50·200일), 변화율(일·월·30일 뒤), 30일 변동성, 구간별 통계(반감기·국면·심리), 요일·월 집계 · [REPORT 5절](REPORT.md#5-분석-결과와-시각화) | 충족 |
 | 시각화 2개 이상(권장 3개 이상) | **8장**([images/](images/)), 리포트 안에서 링크 | 충족 |
@@ -31,9 +31,9 @@
 | GitHub: 코드·리포트·데이터 또는 수집 방법 | [data/raw/](data/raw/) CSV 4개 + 수집 스크립트 | 충족 |
 | 재현성(의존성·실행 방법·출처/약관) | [requirements.txt](requirements.txt), 아래 '실행', '데이터 출처와 약관' | 충족 |
 | 분석 품질(그래프만 나열 금지) | 그림마다 관찰·해석 문단 · [REPORT 5절](REPORT.md#5-분석-결과와-시각화) | 충족 |
-| **AI 사용 로그**(작업·이유·검증 방법) | 7개 작업, 검증 방법 포함 · [REPORT 9절](REPORT.md#9-ai-사용-로그) | 충족 |
+| **AI 사용 로그**(작업·이유·검증 방법) | 8개 작업(독립 검토 포함), 검증 방법 포함 · [REPORT 9절](REPORT.md#9-ai-사용-로그) | 충족 |
 | 보너스 1: 대시보드(기간·조건 바꿔 탐색) | 코인·기간·장면·이동평균·변동성 창·로그 축을 바꾸면 숫자 카드·그래프·알프레도 해설이 바뀌는 파일 하나짜리 화면 [dashboard/index.html](dashboard/index.html). 제출 형식 (3) 스크린샷 5장 + 시나리오 · [dashboard/README.md](dashboard/README.md) | 충족 |
-| 보너스 2: 분해·예측 + 시각화 | 고전 분해(그림 6), 베이스라인 예측 4종 + 24구간 재검증(그림 7) · [REPORT 7절](REPORT.md#7-보너스-시계열-분해와-베이스라인-예측) | 충족 |
+| 보너스 2: 분해·예측 + 시각화 | 고전 분해(그림 6), 베이스라인 예측 4종 + 30일 창 24개 재검증(그림 7) · [REPORT 7절](REPORT.md#7-보너스-시계열-분해와-베이스라인-예측) | 충족 |
 
 ## 실행
 
@@ -72,7 +72,7 @@ Alfredo_my_wealth_manager/
 | 자료 | 출처 | 약관·주의 |
 |---|---|---|
 | BTC·ETH·XRP 일봉 | Coinbase Exchange 공개 시세 API https://api.exchange.coinbase.com/products/BTC-USD/candles | 공개 엔드포인트(키 없음). 재배포 조건은 확인 중이며, 문제가 되면 `data/raw/coinbase_*.csv`를 지우고 `data/collect.py`로 직접 받으면 같은 결과가 나옵니다 |
-| 공포탐욕 지수 | alternative.me https://alternative.me/crypto/fear-and-greed-index | 이용 규칙: 데이터 옆에 출처를 밝힐 것, alternative.me를 사칭하거나 혼동되는 서비스 금지. 이 저장소와 그림에 출처를 적었습니다 |
+| 공포탐욕 지수(비트코인 중심) | alternative.me https://alternative.me/crypto/fear-and-greed-index | 이용 규칙: 데이터 옆에 출처를 밝힐 것, alternative.me를 사칭하거나 혼동되는 서비스 금지. 이 저장소, 그림 아래, 대시보드에 출처를 적었습니다 |
 
 ## Top 3 Crypto(팀 프로젝트)와의 관계
 
